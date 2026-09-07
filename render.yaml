@@ -2,33 +2,6 @@ services:
   - type: web
     name: vibe-tap
     env: python
-    runtime: python312
+    pythonVersion: 3.12.3
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
     startCommand: gunicorn config.wsgi:application
-    pythonVersion: 3.12.3
-    envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.3"
-      - key: DJANGO_SETTINGS_MODULE
-        value: config.settings
-      - key: ALLOWED_HOSTS
-        value: ".onrender.com,www.your-domain.com,your-custom-domain.com"
-      - key: CORS_ALLOWED_ORIGINS
-        value: "https://vibe-tap.vercel.app,http://localhost:3000,http://127.0.0.1:3000"
-      - key: DEBUG
-        value: "False"
-      - key: SECRET_KEY
-        fromSecret: vibe-tap-secret-key
-      - key: DATABASE_URL
-        fromDatabase:
-          name: vibe-tap-db
-          type: postgresql
-          connectionPooling: true
-      - key: STATIC_ROOT
-        value: staticfiles
-      - key: ALLOWED_HOSTS
-        fromSync: true
-  # Optional: Add a PostgreSQL database
-  - type: postgresql
-    name: vibe-tap-db
-    version: 15

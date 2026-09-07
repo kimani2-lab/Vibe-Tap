@@ -1,0 +1,16 @@
+# Standard Python/Django Docker exclusions
+.git
+__pycache__
+*.pyc
+*.pyc
+pyvenv
+.venv
+.env
+*.env
+.db.sqlite3
+staticfiles
+media
+.dockerinit
+# Docker specific
+Dockerfile
+docker-compose.yaml

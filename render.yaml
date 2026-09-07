@@ -3,7 +3,26 @@ services:
     name: vibe-tap
     env: python
     plan: free
-    runtime: python
+    runtime: python312
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
     startCommand: gunicorn config.wsgi:application
+    # Always use Python 3.12.3
     pythonVersion: 3.12.3
+    # Always use pip (not Poetry)
+    nixpacks:
+      - inherits: false
+        exclusions:
+          - pyproject.toml
+          - poetry.lock
+          - setup.py
+          - setup.cfg
+          - Pipfile
+        afterSetup: |
+          pip install -r requirements.txt
+        web:
+          root: ./
+          startCommand: gunicorn config.wsgi:application
+  # Optional: Add a PostgreSQL database
+  # - type: postgresql
+  #   name: vibe-tap-db
+  #   version: 15

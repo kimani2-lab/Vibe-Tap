@@ -30,4 +30,4 @@ EXPOSE 8000
 
 # Entrypoint: run migrations, collect static, then start gunicorn
 # Gunicorn binds to 0.0.0.0:8000
-ENTRYPOINT ["sh", "-c", "python manage.py migrate --run-parallel 8 && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
+ENTRYPOINT ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]

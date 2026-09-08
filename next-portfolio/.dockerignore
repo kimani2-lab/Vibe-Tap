@@ -1,0 +1,10 @@
+# Standard Node/Docker exclusions
+node_modules
+npm-debug.log
+yarn-error.log
+*.tgz
+.next
+*.next
+Dockerfile
+docker-compose.yaml
+.env

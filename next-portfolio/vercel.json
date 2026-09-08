@@ -1,0 +1,13 @@
+{
+  "docker": {
+    "buildCommand": "docker build -t next-portfolio .",
+    "runtime": "node",
+    "port": 3000
+  },
+  "framework": "nextjs",
+  "functions": {
+    "api/*": {
+      "runtime": "node18"
+    }
+  }
+}

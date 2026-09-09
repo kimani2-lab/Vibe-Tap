@@ -85,13 +85,13 @@ export default async function PortfolioViewer({
                 />
               )
             ) : (
-              <span className="text-3xl font-bold text-zinc-400">
-                {profile.full_name?.charAt(0) || "U"}
               </span>
             )}
           </div>
 
-          <h1 className="text-2xl font-bold text-white">{profile.full_name}</h1>
+          <h1 className="text-2xl font-bold text-white">
+            {profile.full_name}
+          </h1>
           <p className="text-indigo-400 text-sm font-medium">{profile.headline}</p>
         </header>
 

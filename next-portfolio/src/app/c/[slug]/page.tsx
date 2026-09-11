@@ -61,6 +61,13 @@ const defaultProfile: Profile = {
       description: "A community-driven platform for sharing local news and events.",
       project_url: "https://github.com/leonkoome4-rgb/kikapu.git",
       cover_image: "https://via.placeholder.com/400x200",
+    },
+    {
+      id: 4,
+      title: "Deliveroo",
+      description: "A food delivery application for ordering and managing restaurant orders.",
+      project_url: "https://github.com/mosweta-school/Deliveroo.git",
+      cover_image: "https://via.placeholder.com/400x200",
     }
   ],
 };

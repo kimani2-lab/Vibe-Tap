@@ -40,7 +40,29 @@ const defaultProfile: Profile = {
     github: "https://github.com/kimani2-lab",
     instagram: "https://www.instagram.com/blacksnowallynde/#",
   },
-  projects: [],
+  projects: [
+    {
+      id: 1,
+      title: "Vibe-Tap",
+      description: "A social media platform for sharing music and discovering new artists.",
+      project_url: "https://github.com/kimani2-lab/Vibe-Tap.git",
+      cover_image: "https://via.placeholder.com/400x200",
+    },
+    {
+      id: 2,
+      title: "SasaTime",
+      description: "A time management application for organizing tasks and schedules.",
+      project_url: "https://github.com/micymike/sasaTime.git",
+      cover_image: "https://via.placeholder.com/400x200",
+    },
+    {
+      id: 3,
+      title: "Kikapu",
+      description: "A community-driven platform for sharing local news and events.",
+      project_url: "https://github.com/leonkoome4-rgb/kikapu.git",
+      cover_image: "https://via.placeholder.com/400x200",
+    }
+  ],
 };
 
 const resolveApiBase = () =>

@@ -29,16 +29,16 @@ const defaultProfile: Profile = {
   slug: "Allan-kimani",
   full_name: "Allan kimani",
   headline: "FULL STACK SOFTWARE ENGINEER | BACKEND SPECIALIST",
-  bio: "I design and build high-impact digital systems that turn complex ideas into reliable products, scalable services, and polished user experiences.",
-  email: "hello@allankimani.com",
-  phone: "+254700000000",
+  bio: "Fullstack Software Developer specializing in Python, Django REST Framework, Next.js, React, and Flutter. Passionate about building high-performance backend architectures, payment integrations, and modern web interfaces. Also experienced in building scalable mobile applications with Flutter and Dart, alongside robust Django backends. Skilled in database design, REST API engineering, and secure payment processing.",
+  email: "kimania271@gmail.com",
+  phone: "+254758288727",
   avatar_url:
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
+    "https://img.magnific.com/free-photo/cartoon-man-wearing-glasses_23-2151136784.jpg?semt=ais_hybrid&w=740&q=80",
   social_links: {
-    linkedin: "https://www.linkedin.com/in/allan-kimani",
-    whatsapp: "https://wa.me/254700000000",
+    linkedin: "https://www.linkedin.com/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%3BIpfK7DO%2FTvOhGr2JQvhMmQ%3D%3D",
+    whatsapp: "https://wa.me/254758288727",
     github: "https://github.com/kimani2-lab",
-    instagram: "https://instagram.com/allankimani",
+    instagram: "https://www.instagram.com/blacksnowallynde/#",
   },
   projects: [],
 };

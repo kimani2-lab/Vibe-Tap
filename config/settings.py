@@ -24,9 +24,36 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-)t%!u7$p0ji1urrjx=xt!xgjw)yfa1bl^=k(fmw-80yr7uv&7s')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False if os.environ.get('DEBUG') == 'False' else True
+DEBUG = os.environ.get('DEBUG', 'True').strip().lower() not in {'false', '0', 'no', 'off'}
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost,.onrender.com').split(',')
+
+def parse_env_list(value, default):
+    """Parse comma-separated environment values into a cleaned list."""
+    raw_value = value or default
+    return [item.strip() for item in raw_value.split(',') if item.strip()]
+
+
+# Load ALLOWED_HOSTS from environment variable (comma-separated)
+# Defaults to localhost for development safety
+ALLOWED_HOSTS = parse_env_list(os.environ.get('ALLOWED_HOSTS'), '127.0.0.1,localhost,.onrender.com')
+
+# CSRF TRUSTED ORIGINS - dynamically loaded
+_raw_csrf_origins = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+CSRF_TRUSTED_ORIGINS = parse_env_list(_raw_csrf_origins, '') if _raw_csrf_origins else []
+if not CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = [
+        f'https://{host}' if host not in {'localhost', '127.0.0.1', '[::1]'} and not host.startswith('http') else host
+        for host in ALLOWED_HOSTS
+        if host not in {'localhost', '127.0.0.1', '[::1]'}
+    ]
+
+# SECURE PROXY SSL HEADER
+# Set to True when behind a trusted reverse proxy (Nginx, Vercel, Render, etc.)
+USE_PROXY = os.getenv('USE_PROXY', 'False').strip().lower() in {'true', '1', 'yes', 'on'}
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if USE_PROXY else None
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 
 # Application definition
@@ -55,7 +82,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
+_raw_cors_origins = os.getenv('CORS_ALLOWED_ORIGINS', '')
+CORS_ALLOWED_ORIGINS = parse_env_list(_raw_cors_origins, 'https://vibe-tap.vercel.app,http://localhost:3000,http://127.0.0.1:3000') if _raw_cors_origins else [
     "https://vibe-tap.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",

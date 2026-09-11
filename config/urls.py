@@ -17,7 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from portfolios.views import vcard
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/portfolios/', include('portfolios.urls')),
+    path('api/vcard/<slug:slug>/', vcard, name='api-vcard-direct'),
 ]

@@ -99,18 +99,19 @@ export default function HomePage() {
             <div className="flex flex-col items-center">
               <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-slate-950/5 ring-4 ring-violet-400/60 shadow-[0_0_28px_rgba(139,92,246,0.7)]">
                 <div className="absolute inset-1 rounded-full bg-gradient-to-br from-violet-500 via-indigo-500 to-cyan-400 opacity-90 blur-[2px]" />
-                <div className="absolute inset-[6px] rounded-full bg-slate-950/95" />
-                <span className="relative bg-gradient-to-br from-violet-200 via-sky-100 to-cyan-100 bg-clip-text text-[4rem] font-semibold leading-none tracking-[-0.12em] text-transparent">
-                  A
-                </span>
+                <img
+                  src="https://img.magnific.com/free-photo/cartoon-man-wearing-glasses_23-2151136784.jpg?semt=ais_hybrid&w=740&q=80"
+                  alt="Allan kimani"
+                  className="relative h-[calc(100%-12px)] w-[calc(100%-12px)] rounded-full object-cover"
+                />
               </div>
 
               <div className="mt-5 text-center">
                 <h1 className="text-[2.3rem] font-semibold leading-[0.9] tracking-[-0.08em] text-slate-950">
-                  Allan kimani
+                  Vibe~Tap
                 </h1>
                 <p className="mt-2 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-violet-600">
-                  Product Designer
+                  Software Engineer
                 </p>
               </div>
             </div>

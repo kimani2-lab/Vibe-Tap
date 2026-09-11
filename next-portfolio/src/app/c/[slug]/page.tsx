@@ -111,7 +111,7 @@ async function getProfileData(slug: string): Promise<Profile | null> {
     }
 
     return null;
-  } catch (error) {
+  } catch {
     if (normalizedSlug.toLowerCase() === "allan-kimani") {
       return defaultProfile;
     }
@@ -149,6 +149,7 @@ export default function PortfolioViewer() {
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showProjects, setShowProjects] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -167,16 +168,7 @@ export default function PortfolioViewer() {
       };
     }
 
-    setProfile(defaultProfile);
-    setLoading(false);
   }, [slug]);
-
-  useEffect(() => {
-    if (!profile) return;
-
-    const vCardUrl = `${apiBase.replace(/\/$/, "")}/api/vcard/${encodeURIComponent(profile.slug)}/`;
-    window.location.href = vCardUrl;
-  }, [apiBase, profile]);
 
   const finalAvatarUrl = useMemo(() => {
     if (!profile?.avatar_url) return null;
@@ -295,12 +287,70 @@ export default function PortfolioViewer() {
           </div>
         )}
 
+        <section className="mt-6" aria-labelledby="projects-heading">
+          <div className="flex items-center justify-between gap-3">
+            <h2 id="projects-heading" className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">
+              Projects
+            </h2>
+          </div>
+
+          {profile.projects.length > 0 ? (
+            <div className="mt-3">
+              <button
+                type="button"
+                onClick={() => setShowProjects((visible) => !visible)}
+                aria-expanded={showProjects}
+                className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50"
+              >
+                <span className="font-semibold text-slate-900">
+                  {showProjects ? "Hide projects" : "View projects"}
+                </span>
+                <span aria-hidden="true" className="text-lg text-slate-500">
+                  {showProjects ? "^" : "->"}
+                </span>
+              </button>
+
+              {showProjects && (
+                <div className="mt-3 space-y-3">
+                  {profile.projects.map((project) => (
+                    <article key={project.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-slate-900">{project.title}</h3>
+                          {project.description && (
+                            <p className="mt-1 text-sm leading-5 text-slate-600">{project.description}</p>
+                          )}
+                        </div>
+                        {project.project_url && (
+                          <a
+                            href={project.project_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Open ${project.title}`}
+                            className="shrink-0 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-slate-700"
+                          >
+                            Open
+                          </a>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="mt-3 rounded-2xl border border-dashed border-slate-300 px-4 py-5 text-center text-sm text-slate-500">
+              No projects added yet.
+            </p>
+          )}
+        </section>
+
         <div className="mt-6">
           <button
             type="button"
             onClick={() => {
               const vCardUrl = `${apiBase.replace(/\/$/, "")}/api/vcard/${encodeURIComponent(profile.slug)}/`;
-              window.location.href = vCardUrl;
+              window.open(vCardUrl, "_blank", "noopener,noreferrer");
             }}
             className="w-full rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99]"
           >

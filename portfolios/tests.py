@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from portfolios.models import Profile
+from portfolios.models import AgentNFCCard, AgentProfile, Profile
+from portfolios.models import NFCCard
 
 
 class VCardEndpointTests(TestCase):
@@ -45,3 +46,159 @@ class VCardEndpointTests(TestCase):
         self.assertIn('TEL:+15551234567', content)
         self.assertIn('EMAIL:alice@example.com', content)
         self.assertIn('URL:https://example.com', content)
+
+
+class AgentResolverEndpointTests(TestCase):
+    def setUp(self):
+        self.agent = AgentProfile.objects.create(
+            agent_id='AG-8821',
+            slug='alice-agent',
+            full_name='Alice Example',
+            phone='+15551234567',
+            email='alice@example.com',
+            referral_code='ALICE8821',
+            services_offered=['Airtime', 'Bill payments'],
+        )
+        self.card = AgentNFCCard.objects.create(agent=self.agent)
+
+    def test_active_card_resolves_agent_profile(self):
+        response = self.client.get(f'/api/v1/agent/{self.card.card_token}/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['agent_id'], 'AG-8821')
+        self.assertEqual(
+            response.json()['app_download_url'],
+            'https://sasapay.app/join?agent=ALICE8821',
+        )
+
+    def test_locked_card_is_forbidden_before_profile_fallback(self):
+        self.card.status = AgentNFCCard.STATUS_LOCKED
+        self.card.save(update_fields=['status'])
+
+        response = self.client.get(f'/api/v1/agent/{self.card.card_token}/')
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.json(),
+            {'error': 'This card has been reported lost or deactivated.'},
+        )
+
+    def test_unlinked_card_is_not_found(self):
+        self.card.status = AgentNFCCard.STATUS_UNLINKED
+        self.card.save(update_fields=['status'])
+
+        response = self.client.get(f'/api/v1/agent/{self.card.card_token}/')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_null_agent_card_is_not_found(self):
+        self.card.agent = None
+        self.card.save(update_fields=['agent'])
+
+        response = self.client.get(f'/api/v1/agent/{self.card.card_token}/')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_slug_and_agent_id_fallbacks_resolve_profile(self):
+        for identifier in ('alice-agent', 'AG-8821'):
+            with self.subTest(identifier=identifier):
+                response = self.client.get(f'/api/v1/agent/{identifier}/')
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json()['slug'], 'alice-agent')
+
+
+class AgentCreateEndpointTests(TestCase):
+    def test_create_agent_returns_profile_and_download_url(self):
+        response = self.client.post(
+            '/api/v1/agent/create/',
+            data={
+                'agent_id': 'AG-9001',
+                'slug': 'new-agent',
+                'full_name': 'New Agent',
+                'phone': '+254700000001',
+                'email': 'new-agent@example.com',
+                'referral_code': 'NEW9001',
+                'services_offered': ['Cash in', 'Cash out'],
+            },
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()['headline'], 'SasaPay Authorized Agent')
+        self.assertEqual(
+            response.json()['app_download_url'],
+            'https://sasapay.app/join?agent=NEW9001',
+        )
+        self.assertTrue(AgentProfile.objects.filter(agent_id='AG-9001').exists())
+
+
+class AgentRegistrationEndpointTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='supervisor',
+            password='secure-password',
+        )
+
+    def test_registration_requires_authentication(self):
+        response = self.client.post('/api/v1/agent/register/', {}, content_type='application/json')
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_authenticated_registration_binds_card_and_returns_payload_url(self):
+        self.client.force_login(self.user)
+        card_token = '7b1e4f3c-2b9d-4dd9-8b4c-0d5a2f4e8c11'
+
+        response = self.client.post(
+            '/api/v1/agent/register/',
+            data={
+                'agent_id': 'AG-9100',
+                'full_name': 'Allan Kimani',
+                'phone': '+254700000010',
+                'email': 'allan@example.com',
+                'referral_code': 'ALLAN9100',
+                'services_offered': ['Cash in'],
+                'card_token': card_token,
+            },
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()['slug'], 'allan-kimani')
+        self.assertEqual(
+            response.json()['nfc_payload_url'],
+            f'https://vibe-tap-one.vercel.app/c/{card_token}',
+        )
+        self.assertTrue(
+            NFCCard.objects.filter(
+                card_token=card_token,
+                agent_profile__agent_id='AG-9100',
+                status='ACTIVE',
+            ).exists()
+        )
+
+    def test_duplicate_agent_id_returns_structured_error(self):
+        AgentProfile.objects.create(
+            agent_id='AG-9200',
+            slug='existing-agent',
+            full_name='Existing Agent',
+            phone='+254700000020',
+            email='existing@example.com',
+            referral_code='EXISTING9200',
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.post(
+            '/api/v1/agent/register/',
+            data={
+                'agent_id': 'AG-9200',
+                'full_name': 'Another Agent',
+                'phone': '+254700000021',
+                'email': 'another@example.com',
+                'referral_code': 'ANOTHER9200',
+            },
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('agent_id', response.json())

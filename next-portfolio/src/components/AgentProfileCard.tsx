@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AgentQRCode from "./AgentQRCode";
 
 export interface AgentData {
   agent_id: string;
@@ -266,6 +267,10 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="mt-6">
+          <AgentQRCode slug={agent.slug} agentName={agent.full_name} />
         </div>
 
       </div>

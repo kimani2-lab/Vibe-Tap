@@ -14,7 +14,7 @@ export default function AgentQRCode({ slug, agentName }: AgentQRCodeProps) {
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      setTargetUrl(`${window.location.origin}/${slug}`);
+      setTargetUrl(`${window.location.origin}/c/${encodeURIComponent(slug)}`);
     });
 
     return () => window.cancelAnimationFrame(frame);

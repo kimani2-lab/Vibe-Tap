@@ -20,41 +20,49 @@ interface SasaPayProduct {
   name: string;
   slug: string;
   target: string;
+  url: string;
 }
 
 const sasaPayProducts: SasaPayProduct[] = [
-  { name: "SasaPay P2P", slug: "p2p", target: "Individual users, Students" },
-  { name: "SasaMat", slug: "sasamat", target: "Commuters, Transport Operators" },
-  { name: "SasaFarm", slug: "sasafarm", target: "Farmers & Agri-Businesses" },
-  { name: "SasaPay Merchants", slug: "merchants", target: "Small to Large Retailers" },
-  { name: "SasaRemit", slug: "sasaremit", target: "Diaspora & Remittance Receivers" },
-  { name: "SasaPay Jaziba", slug: "jaziba", target: "Sacco Members & Unbanked" },
-  { name: "Tunza", slug: "tunza", target: "Micro-Investments" },
-  { name: "SasaBima", slug: "sasabima", target: "Insurance Policies" },
-  { name: "Sacco Point", slug: "sacco-point", target: "Saccos & Cooperatives" },
-  { name: "Maisha Fund", slug: "maisha-fund", target: "Micro-financing" },
-  { name: "SasaPay POS", slug: "point-of-sale", target: "POS Merchants" },
-  { name: "SasaPay Escrow", slug: "escrow", target: "Secure Transactions" },
+  { name: "SasaPay P2P", slug: "p2p", target: "Individual users, Students", url: "https://www.sasapay.co.ke/" },
+  { name: "SasaMat", slug: "sasamat", target: "Commuters, Transport Operators", url: "https://www.sasapay.co.ke/products/sasamat" },
+  { name: "SasaFarm", slug: "sasafarm", target: "Farmers & Agri-Businesses", url: "https://www.sasapay.co.ke/products/maliyetu" },
+  { name: "SasaPay Merchants", slug: "merchants", target: "Small to Large Retailers", url: "https://merchants.sasapay.app/" },
+  { name: "SasaRemit", slug: "sasaremit", target: "Diaspora & Remittance Receivers", url: "https://play.google.com/store/apps/details?id=ke.co.sasapay.sasapay_app" },
+  { name: "SasaPay Jaziba", slug: "jaziba", target: "Sacco Members & Unbanked", url: "https://play.google.com/store/apps/details?id=ke.co.sasapay.sasapay_app" },
+  { name: "Tunza", slug: "tunza", target: "Micro-Investments", url: "https://play.google.com/store/apps/details?id=ke.co.viewtech.tunza&pcampaignid=web_share" },
+  { name: "SasaBima", slug: "sasabima", target: "Insurance Policies", url: "https://play.google.com/store/apps/details?id=ke.co.sasapay.sasapay_app&pcampaignid=web_share" },
+  { name: "Sacco Point", slug: "sacco-point", target: "Saccos & Cooperatives", url: "https://www.sasapay.co.ke/" },
+  { name: "Maisha Fund", slug: "maisha-fund", target: "Micro-financing", url: "https://play.google.com/store/apps/details?id=ke.co.viewtech.maisha&pcampaignid=web_share" },
+  { name: "SasaPay POS", slug: "point-of-sale", target: "POS Merchants", url: "https://www.sasapay.co.ke/products/sasapos" },
+  { name: "SasaPay Escrow", slug: "escrow", target: "Secure Transactions", url: "https://play.google.com/store/apps/details?id=com.sasapay.escrow&pcampaignid=web_share" },
 ];
 
 /**
- * Imported SasaPay Logo Symbol
- * Points to public/sasapay-s-logo.png (or .svg)
+ * Official SasaPay Logo Mark
+ * Two distinct angled capsules: Blue (top-left) and Red (bottom-right)
  */
-function SasaPaySymbol({ className = "w-7 h-7" }: { className?: string }) {
+function SasaPaySymbol({ className = "w-6 h-7" }: { className?: string }) {
   return (
-    <img
-      src="/sasapay-s-logo.png"
-      alt="SasaPay Symbol"
-      className={`object-contain ${className}`}
-    />
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <g transform="rotate(-40 24 24)">
+        <rect x="12" y="8" width="10" height="22" rx="5" fill="#0088ff" />
+        <rect x="26" y="18" width="10" height="22" rx="5" fill="#e61c24" />
+      </g>
+    </svg>
   );
 }
 
 function SasaPayLogo() {
   return (
-    <div className="flex items-center gap-1.5">
-      <SasaPaySymbol className="w-8 h-8" />
+    <div className="flex items-center gap-2">
+      <SasaPaySymbol className="w-8 h-9" />
       <span className="text-3xl font-black text-slate-900 tracking-tight">sasapay</span>
       <span className="text-[9px] font-bold text-slate-900 border border-slate-900 rounded px-1 py-0.2 self-start mt-1">
         SP
@@ -124,7 +132,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
           </span>
         </div>
 
-        {/* Decorative Brand Background Arcs */}
+        {/* Decorative Brand SVG Arcs */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <svg className="w-full h-full" viewBox="0 0 360 190" preserveAspectRatio="none" fill="none">
             {/* Left Arch framing Avatar (Red inside, Blue outside) */}
@@ -137,7 +145,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
           </svg>
         </div>
 
-        {/* Center Seam Imported Symbol */}
+        {/* Center Seam Symbol */}
         <div className="absolute left-1/2 bottom-1 -translate-x-1/2 z-20">
           <SasaPaySymbol className="w-4 h-5" />
         </div>
@@ -199,30 +207,8 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
           </a>
         </div>
 
-        <div className="my-5 border-t border-cyan-900/40" />
-
-        {/* Services Offered */}
-        <div>
-          <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-300 mb-3">
-            <span>Services Offered</span>
-            <span className="text-cyan-400 font-normal lowercase">{agent.services_offered.length} available</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {agent.services_offered.map((service) => (
-              <div key={service} className="bg-[#003535] border border-cyan-900/40 rounded-xl px-3 py-2.5 text-xs text-white flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">
-                  <Icon name="check" />
-                </span>
-                <span className="truncate">{service}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="my-5 border-t border-cyan-900/40" />
-
         {/* Collapsible Ecosystem Products */}
-        <div>
+        <div className="mt-5">
           <button
             type="button"
             onClick={() => setShowProducts(!showProducts)}
@@ -248,18 +234,38 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
                     <h4 className="text-xs font-bold text-white">{p.name}</h4>
                     <p className="text-[10px] text-slate-400 mt-1 line-clamp-2">{p.target}</p>
                   </div>
-                  <a 
-                    href={`https://sasapay.co.ke/products/${p.slug}?agent=${agent.referral_code}`}
+                  <a
+                    href={p.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-2 text-[10px] font-bold text-cyan-400 hover:text-cyan-200"
                   >
-                    Access Product →
+                    Access Product -&gt;
                   </a>
                 </div>
               ))}
             </div>
           )}
+        </div>
+
+        <div className="my-5 border-t border-cyan-900/40" />
+
+        {/* Services Offered */}
+        <div>
+          <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-300 mb-3">
+            <span>Services Offered</span>
+            <span className="text-cyan-400 font-normal lowercase">{agent.services_offered.length} available</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {agent.services_offered.map((service) => (
+              <div key={service} className="bg-[#003535] border border-cyan-900/40 rounded-xl px-3 py-2.5 text-xs text-white flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">
+                  <Icon name="check" />
+                </span>
+                <span className="truncate">{service}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
       </div>

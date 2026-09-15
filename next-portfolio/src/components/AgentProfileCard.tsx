@@ -46,7 +46,11 @@ function SasaPaySymbol({ className = "w-6 h-7" }: { className?: string }) {
 function SasaPayLogo() {
   return (
     <div className="flex items-center gap-2">
-      <SasaPaySymbol className="w-8 h-9" />
+      <img
+        src="/sasapay-mark.svg"
+        alt="SasaPay symbol"
+        className="h-9 w-9 shrink-0 object-contain"
+      />
       <span className="text-3xl font-black text-slate-900 tracking-tight">sasapay</span>
       <span className="text-[9px] font-bold text-slate-900 border border-slate-900 rounded px-1 py-0.2 self-start mt-1">
         SP
@@ -94,16 +98,30 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
   const cleanPhone = agent.phone.replace(/[^\d+]/g, "").replace(/^\+/, "");
 
   return (
-    <div className="w-full max-w-sm overflow-hidden rounded-[36px] bg-[#002b2b] border border-cyan-950 shadow-2xl font-sans">
+    <div className="w-full max-w-sm overflow-hidden rounded-b-3xl border border-slate-800 bg-black shadow-2xl font-sans">
       
       {/* 1. Header Banner */}
-      <header className="relative h-48 w-full bg-white p-5 overflow-hidden flex flex-col justify-between">
+      <header className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 px-5 pb-20 pt-8 sm:px-7">
+        <div className="pointer-events-none absolute left-0 top-0 h-24 w-24 overflow-hidden">
+          <div className="absolute -left-8 top-2 h-3 w-32 -rotate-45 bg-[#e11d48]" />
+          <div className="absolute -left-8 top-5 h-3 w-32 -rotate-45 bg-[#2563eb]" />
+        </div>
+
+        <div className="pointer-events-none absolute bottom-0 right-0 h-24 w-24 overflow-hidden">
+          <div className="absolute -right-8 bottom-2 h-3 w-32 -rotate-45 bg-[#e11d48]" />
+          <div className="absolute -right-8 bottom-5 h-3 w-32 -rotate-45 bg-[#2563eb]" />
+        </div>
+
+        <div className="pointer-events-none absolute inset-0 opacity-30">
+          <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full border-[30px] border-white/50" />
+          <div className="absolute -left-10 top-10 h-80 w-80 rounded-full border-[20px] border-slate-400/30" />
+        </div>
         
         {/* Top Header Row: Logo & VERIFIED Badge */}
-        <div className="relative z-10 flex justify-between items-start">
+        <div className="relative z-10 flex items-start justify-between gap-3">
           <div>
             <SasaPayLogo />
-            <p className="mt-2 text-[0.6rem] font-bold uppercase tracking-widest text-slate-800">
+            <p className="mt-3 text-[0.6rem] font-bold uppercase tracking-widest text-slate-800">
               SASAPAY
             </p>
             <p className="text-[0.62rem] text-slate-500 font-medium">
@@ -111,36 +129,31 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
             </p>
           </div>
 
-          <span className="bg-[#0b1e28] text-white text-[0.6rem] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest">
+          <span className="flex items-center gap-2 rounded-full border-2 border-emerald-400 bg-slate-900 px-3.5 py-1.5 text-[0.6rem] font-bold tracking-widest text-white shadow-lg">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/20 text-sm text-emerald-400" aria-hidden="true">✓</span>
             VERIFIED
           </span>
         </div>
 
-        {/* Decorative Brand SVG Arcs */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <svg className="w-full h-full" viewBox="0 0 360 190" preserveAspectRatio="none" fill="none">
-            {/* Left Arch framing Avatar (Red inside, Blue outside) */}
-            <circle cx="65" cy="190" r="72" stroke="#e61c24" strokeWidth="18" />
-            <circle cx="65" cy="190" r="92" stroke="#0088ff" strokeWidth="16" />
-
-            {/* Right Sweeping Arc */}
-            <circle cx="340" cy="50" r="102" stroke="#0088ff" strokeWidth="20" />
-            <circle cx="340" cy="50" r="124" stroke="#e61c24" strokeWidth="18" />
-          </svg>
+        <div className="pointer-events-none absolute bottom-16 right-8 z-10 grid grid-cols-4 gap-2 opacity-80">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <span key={index} className="h-2 w-2 rounded-full bg-cyan-400 shadow-sm" />
+          ))}
         </div>
 
-        {/* Center Seam Symbol */}
-        <div className="absolute left-1/2 bottom-1 -translate-x-1/2 z-20">
-          <SasaPaySymbol className="w-4 h-5" />
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-10 h-12 overflow-hidden leading-none">
+          <svg className="relative block h-12 w-full text-slate-950" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,0 C150,90 350,-40 500,40 C650,120 900,20 1200,60 L1200,120 L0,120 Z" fill="currentColor" />
+          </svg>
         </div>
       </header>
 
       {/* 2. Main Dark Card Body */}
-      <div className="bg-[#002b2b] px-5 pb-6 pt-1 relative z-10">
+      <div className="relative z-10 bg-black px-5 pb-6 pt-1">
         
         {/* Avatar & Verified Status Row */}
         <div className="flex justify-between items-end -mt-16 mb-4 relative z-20">
-          <div className="w-24 h-24 rounded-full border-4 border-[#002b2b] overflow-hidden bg-slate-800 shadow-xl ml-1">
+          <div className="ml-1 h-24 w-24 overflow-hidden rounded-full border-4 border-cyan-400 bg-slate-900 shadow-lg shadow-cyan-500/30">
             <img 
               src={agent.avatar_url || fallbackAvatar} 
               alt={agent.full_name} 
@@ -150,7 +163,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
           </div>
 
           {agent.is_verified && (
-            <span className="bg-[#003838] border border-emerald-500/30 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 mb-1">
+            <span className="border border-emerald-500/30 bg-[#101a19] text-xs font-semibold text-emerald-400 px-3 py-1.5 rounded-full flex items-center gap-1.5 mb-1">
               <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">✓</span>
               Verified Agent
             </span>
@@ -178,7 +191,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
         <div className="grid grid-cols-2 gap-3 mt-3">
           <a 
             href={`tel:${agent.phone}`}
-            className="bg-[#003838] border border-cyan-900/50 text-white font-semibold text-xs py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#004040] transition"
+            className="border border-slate-700 bg-[#111111] text-xs font-semibold text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:border-cyan-500/60 hover:bg-[#181818] transition"
           >
             <Icon name="phone" /> Call Agent
           </a>
@@ -186,7 +199,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
             href={`https://wa.me/${cleanPhone}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#003838] border border-cyan-900/50 text-white font-semibold text-xs py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#004040] transition"
+            className="border border-slate-700 bg-[#111111] text-xs font-semibold text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:border-cyan-500/60 hover:bg-[#181818] transition"
           >
             <Icon name="whatsapp" /> WhatsApp
           </a>
@@ -198,7 +211,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
             type="button"
             onClick={() => setShowProducts(!showProducts)}
             aria-expanded={showProducts}
-            className="w-full bg-[#002222] border border-cyan-900/60 p-3.5 rounded-xl flex justify-between items-center text-left hover:border-cyan-500/40 transition"
+            className="w-full rounded-xl border border-slate-800 bg-[#0b0b0b] p-3.5 flex justify-between items-center text-left hover:border-cyan-500/40 transition"
           >
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">Our Ecosystem Products</h3>
@@ -214,7 +227,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
           {showProducts && (
             <div className="space-y-2.5 mt-3 animate-fadeIn">
               {sasaPayProducts.map((p) => (
-                <div key={p.slug} className="bg-[#002222] border border-cyan-900/60 p-3.5 rounded-xl flex flex-col justify-between">
+                <div key={p.slug} className="rounded-xl border border-slate-800 bg-[#0b0b0b] p-3.5 flex flex-col justify-between">
                   <div>
                     <h4 className="text-xs font-bold text-white">{p.name}</h4>
                     <p className="text-[10px] text-slate-400 mt-0.5">{p.target}</p>
@@ -224,7 +237,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
                       href={`${p.app_store_url}?ref=${encodeURIComponent(agent.referral_code)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] font-bold text-cyan-300 hover:text-white bg-[#003838] border border-cyan-800/40 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+                      className="text-[10px] font-bold text-cyan-300 hover:text-white bg-[#111111] border border-slate-700 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
                     >
                        App Store
                     </a>
@@ -232,7 +245,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
                       href={`${p.play_store_url}&referrer=${encodeURIComponent(agent.referral_code)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] font-bold text-slate-300 hover:text-white bg-[#003838] border border-cyan-800/40 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+                      className="text-[10px] font-bold text-slate-300 hover:text-white bg-[#111111] border border-slate-700 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
                     >
                       ▶ Play Store
                     </a>
@@ -261,7 +274,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
           </div>
           <div className="grid grid-cols-2 gap-2">
             {agent.services_offered.map((service) => (
-              <div key={service.slug} className="bg-[#003535] border border-cyan-900/40 rounded-xl px-3 py-2.5 text-xs text-white flex items-center gap-2">
+              <div key={service.slug} className="rounded-xl border border-slate-800 bg-[#111111] px-3 py-2.5 text-xs text-white flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">
                   <Icon name="check" />
                 </span>

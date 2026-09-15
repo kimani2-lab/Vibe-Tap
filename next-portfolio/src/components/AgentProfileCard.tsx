@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AgentQRCode from "./AgentQRCode";
+import { SASAPAY_APP_STORE_MAIN,SASAPAY_PLAY_STORE_MAIN, sasaPayProducts } from "@/lib/data";
 
 export interface AgentData {
   agent_id: string;
@@ -13,31 +14,13 @@ export interface AgentData {
   avatar_url: string | null;
   is_verified: boolean;
   referral_code: string;
-  services_offered: string[];
+  services_offered: {
+    category_name: string;
+    slug: string;
+    description: string;
+  }[];
   app_download_url: string;
 }
-
-interface SasaPayProduct {
-  name: string;
-  slug: string;
-  target: string;
-  url: string;
-}
-
-const sasaPayProducts: SasaPayProduct[] = [
-  { name: "SasaPay P2P", slug: "p2p", target: "Individual users, Students", url: "https://www.sasapay.co.ke/" },
-  { name: "SasaMat", slug: "sasamat", target: "Commuters, Transport Operators", url: "https://www.sasapay.co.ke/products/sasamat" },
-  { name: "SasaFarm", slug: "sasafarm", target: "Farmers & Agri-Businesses", url: "https://www.sasapay.co.ke/products/maliyetu" },
-  { name: "SasaPay Merchants", slug: "merchants", target: "Small to Large Retailers", url: "https://merchants.sasapay.app/" },
-  { name: "SasaRemit", slug: "sasaremit", target: "Diaspora & Remittance Receivers", url: "https://play.google.com/store/apps/details?id=ke.co.sasapay.sasapay_app" },
-  { name: "SasaPay Jaziba", slug: "jaziba", target: "Sacco Members & Unbanked", url: "https://play.google.com/store/apps/details?id=ke.co.sasapay.sasapay_app" },
-  { name: "Tunza", slug: "tunza", target: "Micro-Investments", url: "https://play.google.com/store/apps/details?id=ke.co.viewtech.tunza&pcampaignid=web_share" },
-  { name: "SasaBima", slug: "sasabima", target: "Insurance Policies", url: "https://play.google.com/store/apps/details?id=ke.co.sasapay.sasapay_app&pcampaignid=web_share" },
-  { name: "Sacco Point", slug: "sacco-point", target: "Saccos & Cooperatives", url: "https://www.sasapay.co.ke/" },
-  { name: "Maisha Fund", slug: "maisha-fund", target: "Micro-financing", url: "https://play.google.com/store/apps/details?id=ke.co.viewtech.maisha&pcampaignid=web_share" },
-  { name: "SasaPay POS", slug: "point-of-sale", target: "POS Merchants", url: "https://www.sasapay.co.ke/products/sasapos" },
-  { name: "SasaPay Escrow", slug: "escrow", target: "Secure Transactions", url: "https://play.google.com/store/apps/details?id=com.sasapay.escrow&pcampaignid=web_share" },
-];
 
 /**
  * Official SasaPay Logo Mark
@@ -181,13 +164,14 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
           <p className="text-xs text-slate-300">{agent.headline}</p>
         </div>
 
-        {/* Download CTA Button */}
-        <a 
-          href={agent.app_download_url} 
-          className="mt-5 w-full bg-[#00a3e0] hover:bg-cyan-300 text-slate-950 font-bold text-sm py-3.5 px-4 rounded-xl flex justify-between items-center transition shadow-lg"
+        {/* Core SasaPay App Download CTA */}
+        <a
+          href={`${SASAPAY_APP_STORE_MAIN}?ref=${encodeURIComponent(agent.referral_code)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-5 w-full bg-[#00a3e0] hover:bg-cyan-300 text-slate-950 font-extrabold text-sm py-3 px-4 rounded-xl flex justify-center items-center gap-2 transition shadow-lg"
         >
-          <span>Download SasaPay &amp; Get Started</span>
-          <Icon name="arrow" />
+          <span> Download SasaPay on App Store</span>
         </a>
 
         {/* Quick Action Buttons */}
@@ -228,21 +212,39 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
           </button>
 
           {showProducts && (
-            <div className="grid grid-cols-2 gap-2 mt-3 animate-fadeIn">
+            <div className="space-y-2.5 mt-3 animate-fadeIn">
               {sasaPayProducts.map((p) => (
-                <div key={p.slug} className="bg-[#002828] border border-cyan-900/40 p-2.5 rounded-xl flex flex-col justify-between">
+                <div key={p.slug} className="bg-[#002222] border border-cyan-900/60 p-3.5 rounded-xl flex flex-col justify-between">
                   <div>
                     <h4 className="text-xs font-bold text-white">{p.name}</h4>
-                    <p className="text-[10px] text-slate-400 mt-1 line-clamp-2">{p.target}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{p.target}</p>
                   </div>
-                  <a
-                    href={p.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 text-[10px] font-bold text-cyan-400 hover:text-cyan-200"
-                  >
-                    Access Product -&gt;
-                  </a>
+                  <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-cyan-950/80">
+                    <a
+                      href={`${p.app_store_url}?ref=${encodeURIComponent(agent.referral_code)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] font-bold text-cyan-300 hover:text-white bg-[#003838] border border-cyan-800/40 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+                    >
+                       App Store
+                    </a>
+                    <a
+                      href={`${p.play_store_url}&referrer=${encodeURIComponent(agent.referral_code)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] font-bold text-slate-300 hover:text-white bg-[#003838] border border-cyan-800/40 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition"
+                    >
+                      ▶ Play Store
+                    </a>
+                    <a
+                      href={`${p.web_url}?agent=${encodeURIComponent(agent.referral_code)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] font-bold text-slate-400 hover:text-slate-200 ml-auto"
+                    >
+                      Web →
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>
@@ -259,11 +261,11 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
           </div>
           <div className="grid grid-cols-2 gap-2">
             {agent.services_offered.map((service) => (
-              <div key={service} className="bg-[#003535] border border-cyan-900/40 rounded-xl px-3 py-2.5 text-xs text-white flex items-center gap-2">
+              <div key={service.slug} className="bg-[#003535] border border-cyan-900/40 rounded-xl px-3 py-2.5 text-xs text-white flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">
                   <Icon name="check" />
                 </span>
-                <span className="truncate">{service}</span>
+                <span className="truncate">{service.category_name}</span>
               </div>
             ))}
           </div>

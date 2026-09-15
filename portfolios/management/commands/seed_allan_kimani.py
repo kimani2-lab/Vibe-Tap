@@ -7,22 +7,29 @@ class Command(BaseCommand):
     help = "Seed the Allan-kimani portfolio profile for production and local use."
 
     def handle(self, *args, **options):
-        profile, created = Profile.objects.update_or_create(
-            slug="Allan-kimani",
-            defaults={
-                "full_name": "Allan kimani",
-                "headline": "Fullstack software engineer| backend developer",
-                "bio": "Fullstack Software Developer specializing in Python, Django REST Framework, Next.js, React, and Flutter. Passionate about building high-performance backend architectures, payment integrations, and modern web interfaces. Also experienced in building scalable mobile applications with Flutter and Dart, alongside robust Django backends. Skilled in database design, REST API engineering, and secure payment processing.",
-                "email": "kimania271@gmail.com",
-                "phone": "+254758288727",
-                "avatar_url": "https://img.magnific.com/free-photo/cartoon-man-wearing-glasses_23-2151136784.jpg?semt=ais_hybrid&w=740&q=80",
-                "social_links": {
-                    "github": "https://github.com/kimani2-lab",
-                    "linkedin": "https://www.linkedin.com/in/allan-kimani-814562417/overlay/background-photo/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%3BF4II2IcRQz%2B7ZLm8%2FOMHhQ%3D%3D",
-                    "website": "https://allankimani.com",
-                },
+        profile_defaults = {
+            "full_name": "Allan Kimani",
+            "headline": "Fullstack software engineer| backend developer",
+            "bio": "Fullstack Software Developer specializing in Python, Django REST Framework, Next.js, React, and Flutter. Passionate about building high-performance backend architectures, payment integrations, and modern web interfaces. Also experienced in building scalable mobile applications with Flutter and Dart, alongside robust Django backends. Skilled in database design, REST API engineering, and secure payment processing.",
+            "email": "kimania271@gmail.com",
+            "phone": "0758288727",
+            "avatar_url": "https://img.magnific.com/free-photo/cartoon-man-wearing-glasses_23-2151136784.jpg?semt=ais_hybrid&w=740&q=80",
+            "social_links": {
+                "linkedin": "https://www.linkedin.com/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%3BIpfK7DO%2FTvOhGr2JQvhMmQ%3D%3D",
+                "whatsapp": "https://wa.me/254758288727",
+                "github": "https://github.com/kimani2-lab",
+                "instagram": "https://www.instagram.com/blacksnowallynde/#",
             },
-        )
+        }
+        profile = Profile.objects.filter(slug__iexact="allan-kimani").first()
+        created = profile is None
+        if profile is None:
+            profile = Profile.objects.create(slug="allan-kimani", **profile_defaults)
+        else:
+            profile.slug = "allan-kimani"
+            for field, value in profile_defaults.items():
+                setattr(profile, field, value)
+            profile.save()
 
         if created:
             self.stdout.write(self.style.SUCCESS(f"Created profile: {profile.slug}"))

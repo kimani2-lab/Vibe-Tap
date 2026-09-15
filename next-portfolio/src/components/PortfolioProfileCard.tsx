@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
 export interface PortfolioData {
@@ -43,11 +43,11 @@ END:VCARD`;
 
 export default function PortfolioProfileCard({ profile }: { profile: PortfolioData }) {
   const [showProjects, setShowProjects] = useState(false);
+  const [profileUrl, setProfileUrl] = useState("");
 
-  const profileUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/c/${profile.slug}`
-      : `https://tapfolio.app/c/${profile.slug}`;
+  useEffect(() => {
+    setProfileUrl(`${window.location.origin}/c/${profile.slug}`);
+  }, [profile.slug]);
 
   const downloadQRCode = () => {
     const svg = document.getElementById("portfolio-qr-code");

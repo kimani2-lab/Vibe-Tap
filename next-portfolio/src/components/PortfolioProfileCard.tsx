@@ -46,7 +46,11 @@ export default function PortfolioProfileCard({ profile }: { profile: PortfolioDa
   const [profileUrl, setProfileUrl] = useState("");
 
   useEffect(() => {
-    setProfileUrl(`${window.location.origin}/c/${profile.slug}`);
+    const frame = window.requestAnimationFrame(() => {
+      setProfileUrl(`${window.location.origin}/c/${encodeURIComponent(profile.slug)}`);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, [profile.slug]);
 
   const downloadQRCode = () => {
@@ -257,7 +261,7 @@ export default function PortfolioProfileCard({ profile }: { profile: PortfolioDa
           </div>
 
           <p className="text-[11px] text-slate-500 text-center">
-            Scan to view <span className="text-slate-900 font-bold">{profile.full_name}</span>'s card
+            Scan to view <span className="text-slate-900 font-bold">{profile.full_name}</span>&apos;s card
           </p>
 
           <button

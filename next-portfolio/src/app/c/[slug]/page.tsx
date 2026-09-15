@@ -39,6 +39,33 @@ async function fetchResolver(identifier: string): Promise<{ data?: AgentResolver
   return {};
 }
 
+async function fetchPortfolio(identifier: string): Promise<PortfolioData | undefined> {
+  const response = await fetch(`${apiBase()}/api/v1/portfolios/${encodeURIComponent(identifier)}/`, {
+    cache: "no-store",
+    headers: { Accept: "application/json" },
+  });
+
+  if (!response.ok) return undefined;
+
+  const data = await response.json();
+  return {
+    slug: data.slug,
+    full_name: data.full_name,
+    headline: data.headline,
+    email: data.email,
+    phone: data.phone,
+    location: data.location || "",
+    avatar_url: data.avatar_url,
+    socials: Object.entries(data.social_links || {}).map(([name, url]) => ({ name, url: String(url) })),
+    projects: (data.projects || []).map((project: { title: string; description: string; project_url?: string; tech?: string[] }) => ({
+      title: project.title,
+      desc: project.description,
+      tech: project.tech || [],
+      link: project.project_url,
+    })),
+  };
+}
+
 function isAgentProfile(data: unknown): data is AgentResolverData {
   if (!data || typeof data !== "object") return false;
   const candidate = data as Partial<AgentResolverData>;
@@ -65,6 +92,7 @@ export default async function AgentResolverPage({ params }: { params: Promise<{ 
   if (localProfile?.type === "portfolio") {
     const portfolio: PortfolioData = {
       full_name: localProfile.full_name,
+      slug: localProfile.slug,
       headline: localProfile.headline,
       email: localProfile.email,
       phone: localProfile.phone,
@@ -77,7 +105,6 @@ export default async function AgentResolverPage({ params }: { params: Promise<{ 
         tech: project.tech,
         link: project.project_url,
       })),
-      skills: Object.values(localProfile.skills).flat(),
     };
 
     return <PortfolioProfileCard profile={portfolio} />;
@@ -122,6 +149,9 @@ export default async function AgentResolverPage({ params }: { params: Promise<{ 
 
     return <LegacyPortfolioCard profile={resolver.data as LegacyProfile} apiBase={apiBase()} />;
   }
+
+  const portfolio = await fetchPortfolio(slug);
+  if (portfolio) return <PortfolioProfileCard profile={portfolio} />;
 
   notFound();
 }

@@ -1,7 +1,32 @@
 from django.db import transaction
+from django.utils import timezone
 from django.utils.text import slugify
 from rest_framework import serializers
 from .models import AgentProfile, NFCCard, Profile, Project
+
+
+class AgentPublicProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentProfile
+        fields = ['agent_id', 'full_name', 'phone', 'email', 'headline', 'services_offered']
+
+
+class ResolveCredentialSerializer(serializers.ModelSerializer):
+    referral_code = serializers.CharField(source='agent_profile.referral_code', read_only=True)
+    is_active = serializers.SerializerMethodField()
+    created_at = serializers.DateTimeField(
+        source='assigned_at',
+        read_only=True,
+        default_timezone=timezone.UTC,
+    )
+    agent = AgentPublicProfileSerializer(source='agent_profile', read_only=True)
+
+    class Meta:
+        model = NFCCard
+        fields = ['card_token', 'referral_code', 'is_active', 'created_at', 'agent']
+
+    def get_is_active(self, obj):
+        return obj.status == NFCCard.STATUS_CHOICES[0][0]
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -52,6 +77,7 @@ class AgentProfileSerializer(serializers.ModelSerializer):
             'avatar_url',
             'is_verified',
             'referral_code',
+            'card_token',
             'services_offered',
             'app_download_url',
         ]
@@ -61,8 +87,6 @@ class AgentProfileSerializer(serializers.ModelSerializer):
 
 
 class RegisterAgentSerializer(serializers.ModelSerializer):
-    card_token = serializers.UUIDField(write_only=True, required=False)
-
     class Meta:
         model = AgentProfile
         fields = [
@@ -73,18 +97,14 @@ class RegisterAgentSerializer(serializers.ModelSerializer):
             'avatar_url',
             'headline',
             'referral_code',
-            'services_offered',
             'card_token',
+            'services_offered',
         ]
+        read_only_fields = ['referral_code', 'card_token']
 
     def validate_agent_id(self, value):
         if AgentProfile.objects.filter(agent_id=value).exists():
             raise serializers.ValidationError('An agent with this ID already exists.')
-        return value
-
-    def validate_referral_code(self, value):
-        if AgentProfile.objects.filter(referral_code=value).exists():
-            raise serializers.ValidationError('An agent with this referral code already exists.')
         return value
 
     def _unique_slug(self, full_name, agent_id):
@@ -98,17 +118,15 @@ class RegisterAgentSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        card_token = validated_data.pop('card_token', None)
         validated_data['slug'] = self._unique_slug(
             validated_data['full_name'],
             validated_data['agent_id'],
         )
         agent = AgentProfile.objects.create(**validated_data)
 
-        if card_token is not None:
-            card, _ = NFCCard.objects.get_or_create(card_token=card_token)
-            card.agent_profile = agent
-            card.status = 'ACTIVE'
-            card.save(update_fields=['agent_profile', 'status'])
+        card, _ = NFCCard.objects.get_or_create(card_token=agent.card_token)
+        card.agent_profile = agent
+        card.status = 'ACTIVE'
+        card.save(update_fields=['agent_profile', 'status'])
 
         return agent

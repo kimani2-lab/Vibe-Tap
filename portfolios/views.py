@@ -4,12 +4,13 @@ from datetime import datetime, timezone
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.http import Http404
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone as tz
 
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -18,6 +19,7 @@ from .serializers import (
     AgentProfileSerializer,
     NFCCardSerializer,
     ProfileSerializer,
+    ResolveCredentialSerializer,
     RegisterAgentSerializer,
 )
 
@@ -68,7 +70,6 @@ def agent_create(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def register_agent_api(request):
     serializer = RegisterAgentSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -81,6 +82,27 @@ def register_agent_api(request):
         else None
     )
     return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def resolve_card_token(request, card_token):
+    """Resolve an active NFC credential and its public agent profile."""
+    try:
+        credential = NFCCard.objects.select_related('agent_profile').get(
+            card_token=card_token,
+            status=NFCCard.STATUS_CHOICES[0][0],
+            agent_profile__isnull=False,
+        )
+    except (NFCCard.DoesNotExist, ValidationError, ValueError, TypeError):
+        raise Http404('Not found.')
+    return Response(
+        {
+            'status': 'success',
+            'data': ResolveCredentialSerializer(credential).data,
+        },
+        status=status.HTTP_200_OK,
+    )
 
 
 def portfolio_detail(request, slug):

@@ -2,6 +2,7 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 
 
 def nfc_card_token_generator():
@@ -73,8 +74,19 @@ class AgentProfile(models.Model):
     email = models.EmailField(max_length=254)
     avatar_url = models.URLField(blank=True, null=True)
     is_verified = models.BooleanField(default=True)
-    referral_code = models.CharField(max_length=100, unique=True)
+    referral_code = models.CharField(max_length=50, unique=True, blank=True)
+    card_token = models.CharField(max_length=64, unique=True, blank=True)
     services_offered = models.JSONField(default=list, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.referral_code:
+            self.referral_code = (
+                self.agent_id.upper().replace(' ', '-')
+                or slugify(self.full_name).upper()
+            )
+        if not self.card_token:
+            self.card_token = uuid.uuid4().hex
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.agent_id} - {self.full_name}'

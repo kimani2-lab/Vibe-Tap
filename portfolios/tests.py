@@ -108,6 +108,53 @@ class AgentResolverEndpointTests(TestCase):
                 self.assertEqual(response.json()['slug'], 'alice-agent')
 
 
+class CredentialResolverEndpointTests(TestCase):
+    def setUp(self):
+        self.agent = AgentProfile.objects.create(
+            agent_id='AG-300',
+            slug='kimani-allan',
+            full_name='Kimani Allan',
+            phone='+254758288727',
+            email='kimania271@gmail.com',
+            headline='SasaPay Authorized Agent',
+            services_offered=['Cash In', 'Cash Out'],
+        )
+        self.card = NFCCard.objects.create(agent_profile=self.agent)
+
+    def test_active_card_returns_credential_and_public_agent(self):
+        with self.assertNumQueries(1):
+            response = self.client.get(f'/api/v1/credentials/{self.card.card_token}/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'success')
+        self.assertEqual(
+            response.json()['data'],
+            {
+                'card_token': str(self.card.card_token),
+                'referral_code': 'AG-300',
+                'is_active': True,
+                'created_at': self.card.assigned_at.isoformat().replace('+00:00', 'Z'),
+                'agent': {
+                    'agent_id': 'AG-300',
+                    'full_name': 'Kimani Allan',
+                    'phone': '+254758288727',
+                    'email': 'kimania271@gmail.com',
+                    'headline': 'SasaPay Authorized Agent',
+                    'services_offered': ['Cash In', 'Cash Out'],
+                },
+            },
+        )
+
+    def test_inactive_card_returns_not_found(self):
+        self.card.status = NFCCard.STATUS_CHOICES[1][0]
+        self.card.save(update_fields=['status'])
+
+        response = self.client.get(f'/api/v1/credentials/{self.card.card_token}/')
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json(), {'detail': 'Not found.'})
+
+
 class AgentCreateEndpointTests(TestCase):
     def test_create_agent_returns_profile_and_download_url(self):
         response = self.client.post(
@@ -140,14 +187,14 @@ class AgentRegistrationEndpointTests(TestCase):
             password='secure-password',
         )
 
-    def test_registration_requires_authentication(self):
+    def test_registration_returns_validation_errors_without_required_fields(self):
         response = self.client.post('/api/v1/agent/register/', {}, content_type='application/json')
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('agent_id', response.json())
 
     def test_authenticated_registration_binds_card_and_returns_payload_url(self):
         self.client.force_login(self.user)
-        card_token = '7b1e4f3c-2b9d-4dd9-8b4c-0d5a2f4e8c11'
 
         response = self.client.post(
             '/api/v1/agent/register/',
@@ -156,18 +203,20 @@ class AgentRegistrationEndpointTests(TestCase):
                 'full_name': 'Allan Kimani',
                 'phone': '+254700000010',
                 'email': 'allan@example.com',
-                'referral_code': 'ALLAN9100',
                 'services_offered': ['Cash in'],
-                'card_token': card_token,
             },
             content_type='application/json',
         )
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['slug'], 'allan-kimani')
+        self.assertEqual(response.json()['referral_code'], 'AG-9100')
+        card_token = response.json()['card_token']
+        self.assertEqual(len(card_token), 32)
+        nfc_card = NFCCard.objects.get(agent_profile__agent_id='AG-9100')
         self.assertEqual(
             response.json()['nfc_payload_url'],
-            f'https://vibe-tap-one.vercel.app/c/{card_token}',
+            f'https://vibe-tap-one.vercel.app/c/{nfc_card.card_token}',
         )
         self.assertTrue(
             NFCCard.objects.filter(

@@ -47,7 +47,7 @@ def agent_resolver(request, identifier):
             return Response(AgentProfileSerializer(card.agent).data)
 
     agent = AgentProfile.objects.filter(
-        models.Q(slug=identifier) | models.Q(agent_id=identifier)
+        models.Q(slug__iexact=identifier) | models.Q(agent_id__iexact=identifier)
     ).first()
     if agent is None:
         return Response(
@@ -84,7 +84,7 @@ def register_agent_api(request):
 
 
 def portfolio_detail(request, slug):
-    profile = get_object_or_404(Profile, slug=slug)
+    profile = get_object_or_404(Profile, slug__iexact=slug)
     data = {
         'id': profile.id,
         'slug': profile.slug,

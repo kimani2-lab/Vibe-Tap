@@ -1,0 +1,53 @@
+<svg width="1366" height="768" viewBox="0 0 1366 768" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="0" cy="0" r="1" gradientTransform="translate(230 150) rotate(42) scale(1220 850)">
+      <stop stop-color="#06499E"/>
+      <stop offset="0.42" stop-color="#032C78"/>
+      <stop offset="1" stop-color="#00143E"/>
+    </radialGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#00B8F2"/>
+      <stop offset="1" stop-color="#1674D4"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FF1D2E"/>
+      <stop offset="1" stop-color="#D81628"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1366" height="768" fill="url(#bg)"/>
+
+  <path d="M0 430C130 432 239 484 331 588C420 688 535 710 684 709C912 708 1118 636 1366 553" stroke="#1276D6" stroke-width="4"/>
+  <path d="M0 430C130 432 239 484 331 588C420 688 535 710 684 709C912 708 1118 636 1366 553" stroke="#00B7F1" stroke-width="2" filter="url(#glow)"/>
+
+  <path d="M0 0H145L0 145V0Z" fill="#08B8F4"/>
+  <path d="M0 116L116 0H145L0 145V116Z" fill="#F21C2B"/>
+  <path d="M1218 768H1366V610L1208 768H1218Z" fill="#08B8F4"/>
+  <path d="M1190 768L1366 592V625L1223 768H1190Z" fill="#F21C2B"/>
+
+  <path d="M1080 -30C1099 117 1215 215 1370 220" stroke="#1B50A1" stroke-width="80" opacity=".45"/>
+  <path d="M1135 -20C1154 92 1246 164 1370 170" stroke="#2561B6" stroke-width="28" opacity=".46"/>
+  <path d="M0 530C161 535 286 632 302 768H0V530Z" fill="#06388C" opacity=".65"/>
+  <path d="M0 495C187 503 341 610 378 768" stroke="#1556AD" stroke-width="30" opacity=".5"/>
+
+  <g fill="#14B9F1">
+    <circle cx="1242" cy="42" r="2.5"/><circle cx="1262" cy="42" r="2.5"/><circle cx="1282" cy="42" r="2.5"/><circle cx="1302" cy="42" r="2.5"/><circle cx="1322" cy="42" r="2.5"/>
+    <circle cx="1242" cy="60" r="2.5"/><circle cx="1262" cy="60" r="2.5"/><circle cx="1282" cy="60" r="2.5"/><circle cx="1302" cy="60" r="2.5"/><circle cx="1322" cy="60" r="2.5"/>
+    <circle cx="1242" cy="78" r="2.5"/><circle cx="1262" cy="78" r="2.5"/><circle cx="1282" cy="78" r="2.5"/><circle cx="1302" cy="78" r="2.5"/><circle cx="1322" cy="78" r="2.5"/>
+    <circle cx="1242" cy="96" r="2.5"/><circle cx="1262" cy="96" r="2.5"/><circle cx="1282" cy="96" r="2.5"/><circle cx="1302" cy="96" r="2.5"/><circle cx="1322" cy="96" r="2.5"/>
+    <circle cx="56" cy="656" r="2.5"/><circle cx="76" cy="656" r="2.5"/><circle cx="96" cy="656" r="2.5"/><circle cx="116" cy="656" r="2.5"/><circle cx="136" cy="656" r="2.5"/>
+    <circle cx="56" cy="674" r="2.5"/><circle cx="76" cy="674" r="2.5"/><circle cx="96" cy="674" r="2.5"/><circle cx="116" cy="674" r="2.5"/><circle cx="136" cy="674" r="2.5"/>
+    <circle cx="56" cy="692" r="2.5"/><circle cx="76" cy="692" r="2.5"/><circle cx="96" cy="692" r="2.5"/><circle cx="116" cy="692" r="2.5"/><circle cx="136" cy="692" r="2.5"/>
+    <circle cx="56" cy="710" r="2.5"/><circle cx="76" cy="710" r="2.5"/><circle cx="96" cy="710" r="2.5"/><circle cx="116" cy="710" r="2.5"/><circle cx="136" cy="710" r="2.5"/>
+  </g>
+
+  <g transform="translate(141 78)">
+    <text x="0" y="54" font-family="Arial, sans-serif" font-size="58" font-weight="700" letter-spacing="-3" fill="#10B8F0">Sasa</text>
+    <text x="145" y="54" font-family="Arial, sans-serif" font-size="58" font-weight="700" letter-spacing="-3" fill="#EF1C2B">Pay</text>
+    <text x="9" y="76" font-family="Arial, sans-serif" font-size="12" font-weight="600" letter-spacing="2" fill="white">every coin counts</text>
+    <circle cx="274" cy="6" r="15" stroke="#C4E7FF" stroke-width="2"/><text x="264" y="12" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#10B8F0">sp</text>
+  </g>
+</svg>

@@ -112,7 +112,8 @@ export default async function AgentResolverPage({ params }: { params: Promise<{ 
 
   if (localProfile?.type === "agent") {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4 dark:bg-slate-950">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-100 p-4 dark:bg-slate-950">
+        <img src="/agent-profile-background.svg" alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
         <AgentProfileCard
           agent={{
             agent_id: localProfile.agent_id || localProfile.slug,
@@ -144,7 +145,7 @@ export default async function AgentResolverPage({ params }: { params: Promise<{ 
 
   if (resolver.data) {
     if (isAgentProfile(resolver.data)) {
-      return <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4 dark:bg-slate-950"><AgentProfileCard agent={resolver.data as unknown as AgentData} /></main>;
+      return <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-100 p-4 dark:bg-slate-950"><img src="/agent-profile-background.svg" alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover" /><AgentProfileCard agent={resolver.data as unknown as AgentData} /></main>;
     }
 
     return <LegacyPortfolioCard profile={resolver.data as LegacyProfile} apiBase={apiBase()} />;

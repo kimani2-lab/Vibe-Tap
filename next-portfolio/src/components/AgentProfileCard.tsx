@@ -98,7 +98,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
   const cleanPhone = agent.phone.replace(/[^\d+]/g, "").replace(/^\+/, "");
 
   return (
-    <div className="w-full max-w-sm overflow-hidden rounded-b-3xl border border-slate-800 bg-black shadow-2xl font-sans">
+    <div className="w-full max-w-sm overflow-hidden rounded-b-3xl border border-blue-950 bg-[#001b5e] shadow-2xl font-sans">
       
       {/* 1. Header Banner */}
       <header className="relative h-64 w-full overflow-hidden bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 px-5 pb-20 pt-8 sm:px-7">
@@ -149,7 +149,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
       </header>
 
       {/* 2. Main Dark Card Body */}
-      <div className="relative z-10 bg-black px-5 pb-6 pt-1">
+      <div className="relative z-10 bg-gradient-to-b from-[#001b5e] via-[#00164d] to-[#001040] px-5 pb-6 pt-1">
         
         {/* Avatar & Verified Status Row */}
         <div className="flex justify-between items-end -mt-16 mb-4 relative z-20">

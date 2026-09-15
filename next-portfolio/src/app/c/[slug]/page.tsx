@@ -112,8 +112,23 @@ export default async function AgentResolverPage({ params }: { params: Promise<{ 
 
   if (localProfile?.type === "agent") {
     return (
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-100 p-4 dark:bg-slate-950">
-        <img src="/agent-profile-background.svg" alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_20%,#111722_0%,#080a0f_46%,#05070b_100%)] p-4">
+        <div className="pointer-events-none absolute -left-10 -top-12 h-36 w-36 -rotate-45 opacity-90" aria-hidden="true">
+          <div className="absolute left-0 top-5 h-2 w-44 bg-[#2563eb]" />
+          <div className="absolute left-0 top-11 h-2 w-44 bg-[#e11d48]" />
+          <div className="absolute left-0 top-[68px] h-1.5 w-36 bg-[#2563eb]" />
+        </div>
+        <div className="pointer-events-none absolute -right-48 -top-48 h-[520px] w-[520px] rounded-full border border-white/[0.035]" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-32 -top-32 h-[380px] w-[380px] rounded-full border border-white/[0.025]" aria-hidden="true" />
+        <div className="pointer-events-none absolute -bottom-72 -left-72 h-[620px] w-[620px] rounded-full border border-cyan-400/[0.13] shadow-[0_0_70px_rgba(0,163,224,0.08)]" aria-hidden="true" />
+        <div className="pointer-events-none absolute -bottom-56 -left-56 h-[470px] w-[470px] rounded-full border border-blue-500/[0.08]" aria-hidden="true" />
+        <div className="pointer-events-none absolute right-8 top-1/3 grid grid-cols-4 gap-2 opacity-60" aria-hidden="true">
+          {Array.from({ length: 12 }).map((_, index) => <span key={`profile-dot-${index}`} className="h-1.5 w-1.5 rounded-full bg-cyan-400" />)}
+        </div>
+        <div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rotate-[-45deg] opacity-80" aria-hidden="true">
+          <div className="absolute bottom-5 right-0 h-2 w-40 bg-[#2563eb]" />
+          <div className="absolute bottom-11 right-0 h-2 w-40 bg-[#e11d48]" />
+        </div>
         <AgentProfileCard
           agent={{
             agent_id: localProfile.agent_id || localProfile.slug,
@@ -145,7 +160,7 @@ export default async function AgentResolverPage({ params }: { params: Promise<{ 
 
   if (resolver.data) {
     if (isAgentProfile(resolver.data)) {
-      return <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-100 p-4 dark:bg-slate-950"><img src="/agent-profile-background.svg" alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover" /><AgentProfileCard agent={resolver.data as unknown as AgentData} /></main>;
+      return <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_20%,#111722_0%,#080a0f_46%,#05070b_100%)] p-4"><div className="pointer-events-none absolute -left-10 -top-12 h-36 w-36 -rotate-45 opacity-90" aria-hidden="true"><div className="absolute left-0 top-5 h-2 w-44 bg-[#2563eb]" /><div className="absolute left-0 top-11 h-2 w-44 bg-[#e11d48]" /><div className="absolute left-0 top-[68px] h-1.5 w-36 bg-[#2563eb]" /></div><div className="pointer-events-none absolute -right-48 -top-48 h-[520px] w-[520px] rounded-full border border-white/[0.035]" aria-hidden="true" /><div className="pointer-events-none absolute -bottom-72 -left-72 h-[620px] w-[620px] rounded-full border border-cyan-400/[0.13] shadow-[0_0_70px_rgba(0,163,224,0.08)]" aria-hidden="true" /><div className="pointer-events-none absolute right-8 top-1/3 grid grid-cols-4 gap-2 opacity-60" aria-hidden="true">{Array.from({ length: 12 }).map((_, index) => <span key={`profile-dot-${index}`} className="h-1.5 w-1.5 rounded-full bg-cyan-400" />)}</div><div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 rotate-[-45deg] opacity-80" aria-hidden="true"><div className="absolute bottom-5 right-0 h-2 w-40 bg-[#2563eb]" /><div className="absolute bottom-11 right-0 h-2 w-40 bg-[#e11d48]" /></div><AgentProfileCard agent={resolver.data as unknown as AgentData} /></main>;
     }
 
     return <LegacyPortfolioCard profile={resolver.data as LegacyProfile} apiBase={apiBase()} />;

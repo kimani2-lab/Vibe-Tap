@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import AgentProfileCard, { AgentData } from "@/components/AgentProfileCard";
 import LegacyPortfolioCard, { LegacyProfile } from "@/components/LegacyPortfolioCard";
+import PortfolioProfileCard, { PortfolioData } from "@/components/PortfolioProfileCard";
+import { findProfile } from "@/lib/data";
 
 interface ResolverError {
   status: number;
@@ -58,6 +60,51 @@ function LockedCardNotice({ message }: { message: string }) {
 
 export default async function AgentResolverPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const localProfile = findProfile(slug);
+
+  if (localProfile?.type === "portfolio") {
+    const portfolio: PortfolioData = {
+      full_name: localProfile.full_name,
+      headline: localProfile.headline,
+      email: localProfile.email,
+      phone: localProfile.phone,
+      location: localProfile.location,
+      avatar_url: localProfile.avatar_url,
+      socials: Object.entries(localProfile.social_links || {}).map(([name, url]) => ({ name, url })),
+      projects: (localProfile.projects || []).map((project) => ({
+        title: project.title,
+        desc: project.description,
+        tech: project.tech,
+        link: project.project_url,
+      })),
+      skills: Object.values(localProfile.skills).flat(),
+    };
+
+    return <PortfolioProfileCard profile={portfolio} />;
+  }
+
+  if (localProfile?.type === "agent") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4 dark:bg-slate-950">
+        <AgentProfileCard
+          agent={{
+            agent_id: localProfile.agent_id || localProfile.slug,
+            slug: localProfile.slug,
+            full_name: localProfile.full_name,
+            headline: localProfile.headline,
+            phone: localProfile.phone,
+            email: localProfile.email,
+            avatar_url: localProfile.avatar_url,
+            is_verified: localProfile.is_verified ?? false,
+            referral_code: localProfile.referral_code || "",
+            services_offered: localProfile.services_offered || [],
+            app_download_url: localProfile.app_download_url || "#",
+          }}
+        />
+      </main>
+    );
+  }
+
   const resolver = await fetchResolver(slug);
 
   if (resolver.error?.status === 403) {

@@ -6,3 +6,5 @@ staticfiles/
 Vibe-Tap/
 .env
 *.sqlite3
+.env.*
+!.env.example

@@ -32,14 +32,26 @@ const initialForm: FormState = {
 const serviceOptions = ["Cash In", "Cash Out", "Bill Payments", "Merchant Tills"];
 const registrationUrl = "/api/agent/register";
 
-function formatErrors(errors: ApiErrors) {
-  return Object.entries(errors)
-    .map(([field, messages]) => {
-      const text = Array.isArray(messages) ? messages.join(" ") : messages;
-      return `${field.replaceAll("_", " ")}: ${text}`;
-    })
-    .join(" ");
-}
+// Helper to parse DRF validation error dictionaries
+const formatErrors = (errors: any): string => {
+  if (typeof errors === "string") return errors;
+
+  if (typeof errors === "object" && errors !== null) {
+    // If DRF returns {"errors": {"email": ["Agent with this Email already exists."]}}
+    const target = errors.errors || errors.detail || errors;
+
+    if (typeof target === "string") return target;
+
+    return Object.entries(target)
+      .map(([field, messages]) => {
+        const msgList = Array.isArray(messages) ? messages.join(", ") : String(messages);
+        return `${field.toUpperCase()}: ${msgList}`;
+      })
+      .join(" | ");
+  }
+
+  return "An unexpected validation error occurred.";
+};
 
 function Field({
   label,
@@ -130,19 +142,11 @@ export default function SupervisorRegisterForm() {
       }
 
 if (!response.ok) {
-      console.error(
-        "DRF API Error Details:",
-        data && Object.keys(data).length > 0 ? data : responseText
-      );
+      console.error("DRF Validation Payload:", JSON.stringify(data, null, 2));
+      
       setFeedback({
         type: "error",
-        message:
-          data && Object.keys(data).length > 0
-            ? formatErrors(data)
-            : `Registration failed (${response.status}): ${responseText.slice(
-                0,
-                100
-              ) || response.statusText}`,
+        message: formatErrors(data),
       });
       return;
     }

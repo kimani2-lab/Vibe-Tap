@@ -1,0 +1,217 @@
+[
+{
+  "model": "portfolios.agentprofile",
+  "pk": "",
+  "fields": {
+    "full_name": "Test Supervisor Agent",
+    "slug": "test-supervisor-agent",
+    "referral_code": "REF-5EA88E",
+    "avatar_url": null,
+    "phone": "+254 700 000 001",
+    "email": "supervisor@test.com",
+    "headline": "SasaPay Authorized Agent",
+    "services_offered": [
+      "Cash In",
+      "Cash Out"
+    ],
+    "created_at": "2026-09-16T12:25:25.321Z"
+  }
+},
+{
+  "model": "portfolios.agentprofile",
+  "pk": "AG-100",
+  "fields": {
+    "full_name": "Jey Zawadi",
+    "slug": "jey-zawadi",
+    "referral_code": "REF-D6A9AA",
+    "avatar_url": "https://t4.ftcdn.net/jpg/09/61/69/75/360_F_961697523_EFd1m8P4tdcwB0TYvlQAagqKR1xHSuwk.jpg",
+    "phone": "+254758288727",
+    "email": "jey211@gmail.com",
+    "headline": "SasaPay Authorized Agent",
+    "services_offered": [
+      "Agent Registration",
+      "Merchant Onboarding",
+      "NFC Programming"
+    ],
+    "created_at": "2026-09-16T09:44:21.146Z"
+  }
+},
+{
+  "model": "portfolios.agentprofile",
+  "pk": "AG-120",
+  "fields": {
+    "full_name": "Allyn underscore",
+    "slug": "allyn-underscore",
+    "referral_code": "REF-B67FE1",
+    "avatar_url": "https://img.magnific.com/free-photo/cartoon-man-wearing-glasses_23-2151136784.jpg?semt=ais_hybrid&w=740&q=80",
+    "phone": "0758288727",
+    "email": "kimania271@gmail.com",
+    "headline": "SasaPay Authorized Agent",
+    "services_offered": [
+      "Cash In & Cash Out (Deposits & Withdrawals)",
+      "P2P & Mobile Money Transfers",
+      "C2B Till & PayBill Merchant Onboarding",
+      "Utility & Bill Payments (Tokens/Airtime)",
+      "Lipa Fare PSV Payment Support",
+      "B2C & B2B Bulk Disbursal Registration"
+    ],
+    "created_at": "2026-09-16T11:21:44.503Z"
+  }
+},
+{
+  "model": "portfolios.agentprofile",
+  "pk": "NEW001",
+  "fields": {
+    "full_name": "New Test Agent",
+    "slug": "new-test-agent",
+    "referral_code": "REF-C9EC49",
+    "avatar_url": null,
+    "phone": "1234567891",
+    "email": "newtest@example.com",
+    "headline": "SasaPay Authorized Agent",
+    "services_offered": [],
+    "created_at": "2026-09-16T10:23:51.448Z"
+  }
+},
+{
+  "model": "portfolios.agentprofile",
+  "pk": "TEST001",
+  "fields": {
+    "full_name": "Test Agent",
+    "slug": "test-agent",
+    "referral_code": "REF-F4AE1C",
+    "avatar_url": null,
+    "phone": "1234567890",
+    "email": "test@example.com",
+    "headline": "SasaPay Authorized Agent",
+    "services_offered": [],
+    "created_at": "2026-09-16T10:18:35.523Z"
+  }
+},
+{
+  "model": "portfolios.nfccard",
+  "pk": 2,
+  "fields": {
+    "card_token": "card_4e64caf5976a4006a0d2bea451ca49ff",
+    "agent_profile": "TEST001",
+    "is_active": true,
+    "created_at": "2026-09-16T10:18:35.539Z"
+  }
+},
+{
+  "model": "portfolios.nfccard",
+  "pk": 3,
+  "fields": {
+    "card_token": "card_4b1f80d9e93241aa9723a4fca6d3a2ac",
+    "agent_profile": "NEW001",
+    "is_active": true,
+    "created_at": "2026-09-16T10:23:51.463Z"
+  }
+},
+{
+  "model": "portfolios.nfccard",
+  "pk": 4,
+  "fields": {
+    "card_token": "card_c2953f99b9504dadb6fd0859d1b3ac38",
+    "agent_profile": "AG-120",
+    "is_active": true,
+    "created_at": "2026-09-16T11:21:44.507Z"
+  }
+},
+{
+  "model": "portfolios.nfccard",
+  "pk": 5,
+  "fields": {
+    "card_token": "card_e490d6a880f6460fb247520001af6296",
+    "agent_profile": "",
+    "is_active": true,
+    "created_at": "2026-09-16T12:25:25.328Z"
+  }
+},
+{
+  "model": "portfolios.nfccard",
+  "pk": 6,
+  "fields": {
+    "card_token": "6fbf6d741f0f43499f16d9716237f612",
+    "agent_profile": "",
+    "is_active": true,
+    "created_at": "2026-09-16T12:25:25.331Z"
+  }
+},
+{
+  "model": "portfolios.profile",
+  "pk": 2,
+  "fields": {
+    "full_name": "Allan kimani",
+    "slug": "Allan-kimani",
+    "title": "Fullstack software | backend developer",
+    "bio": "Fullstack Software Developer specializing in Python, Django REST Framework, Next.js, React, and Flutter. Passionate about building high-performance backend architectures, payment integrations, and modern web interfaces. Also experienced in building scalable mobile applications with Flutter and Dart, alongside robust Django backends. Skilled in database design, REST API engineering, and secure payment processing.",
+    "avatar_url": "https://img.magnific.com/free-photo/cartoon-man-wearing-glasses_23-2151136784.jpg?semt=ais_hybrid&w=740&q=80",
+    "email": "kimania271@gmail.com",
+    "phone": "0728926262",
+    "location": "Kahwa sukari,Kiambu county",
+    "social_links": {
+      "github": "https://github.com/kimani2-lab",
+      "linkedin": "https://www.linkedin.com/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%3BIpfK7DO%2FTvOhGr2JQvhMmQ%3D%3D",
+      "whatsapp": "https://wa.me/254758288727",
+      "instagram": "https://www.instagram.com/blacksnowallynde/#"
+    },
+    "created_at": "2026-09-16T08:52:08.206Z"
+  }
+},
+{
+  "model": "portfolios.profile",
+  "pk": 4,
+  "fields": {
+    "full_name": "Cate-kawira",
+    "slug": "cate-kawira",
+    "title": "Product designer",
+    "bio": "Best in designing alll kind of product .",
+    "avatar_url": "https://img.magnific.com/free-photo/cartoon-man-wearing-glasses_23-2151136784.jpg?semt=ais_hybrid&w=740&q=80",
+    "email": "kawira10@gmail.com",
+    "phone": "0758288720",
+    "location": "Kahwa sukari,Kiambu county",
+    "social_links": {},
+    "created_at": "2026-09-16T11:43:35.674Z"
+  }
+},
+{
+  "model": "portfolios.project",
+  "pk": 1,
+  "fields": {
+    "profile": 2,
+    "title": "Vibe~Tap",
+    "description": "A social media platform for sharing music and discovering new artists.",
+    "technologies": "Django,Next.js,PostgreSQL",
+    "project_url": "https://github.com/kimani2-lab/Vibe-Tap.git",
+    "github_repository": null,
+    "created_at": "2026-09-16T09:11:42.999Z"
+  }
+},
+{
+  "model": "portfolios.project",
+  "pk": 2,
+  "fields": {
+    "profile": 2,
+    "title": "Kikapu",
+    "description": "A community-driven platform for sharing local news and events.",
+    "technologies": "Flask,python,Javascript,react",
+    "project_url": "https://github.com/leonkoome4-rgb/kikapu.git",
+    "github_repository": null,
+    "created_at": "2026-09-16T09:15:14.965Z"
+  }
+},
+{
+  "model": "portfolios.project",
+  "pk": 3,
+  "fields": {
+    "profile": 2,
+    "title": "Smart Uber",
+    "description": "A trustworthy delivery application for transporting loads and passangers all over kenya.",
+    "technologies": "Flask,python,Javascript,react",
+    "project_url": "https://github.com/mosweta-school/Deliveroo.git",
+    "github_repository": null,
+    "created_at": "2026-09-16T09:17:59.532Z"
+  }
+}
+]

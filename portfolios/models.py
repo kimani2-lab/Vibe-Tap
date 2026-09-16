@@ -4,6 +4,17 @@ from django.db import models
 from django.utils.text import slugify
 
 
+def default_sasapay_services():
+    return [
+        "Cash In & Cash Out (Deposits & Withdrawals)",
+        "P2P & Mobile Money Transfers",
+        "C2B Till & PayBill Merchant Onboarding",
+        "Utility & Bill Payments (Tokens/Airtime)",
+        "Lipa Fare PSV Payment Support",
+        "B2C & B2B Bulk Disbursal Registration",
+    ]
+
+
 class AgentProfile(models.Model):
     agent_id = models.CharField(max_length=50, unique=True, primary_key=True)
     full_name = models.CharField(max_length=255)
@@ -22,7 +33,11 @@ class AgentProfile(models.Model):
         default='SasaPay Authorized Agent',
         blank=True,
     )
-    services_offered = models.JSONField(default=list, blank=True)
+    services_offered = models.JSONField(
+        default=default_sasapay_services,
+        blank=True,
+        help_text='Provide a JSON array of services, e.g., ["Cash In & Cash Out", "P2P Transfers"]',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

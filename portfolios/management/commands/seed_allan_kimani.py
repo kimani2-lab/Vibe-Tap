@@ -53,9 +53,9 @@ class Command(BaseCommand):
                 "project_url": "https://github.com/leonkoome4-rgb/kikapu.git",
             },
             {
-                "title": "Deliveroo",
+                "title": "Smart Uber",
                 "description": "A food delivery application for ordering and managing restaurant orders.",
-                "project_url": "https://github.com/mosweta-school/Deliveroo.git",
+                "project_url": "https://github.com/mosweta-school/deliveroo.git",
             },
         ]
 

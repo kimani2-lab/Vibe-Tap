@@ -129,14 +129,23 @@ export default function SupervisorRegisterForm() {
         console.error("Registration API returned a non-JSON response:", responseText);
       }
 
-      if (!response.ok) {
-        console.error("DRF API Error Details:", data ?? responseText);
-        setFeedback({
-          type: "error",
-          message: data ? formatErrors(data) : `Registration failed with HTTP ${response.status}.`,
-        });
-        return;
-      }
+if (!response.ok) {
+      console.error(
+        "DRF API Error Details:",
+        data && Object.keys(data).length > 0 ? data : responseText
+      );
+      setFeedback({
+        type: "error",
+        message:
+          data && Object.keys(data).length > 0
+            ? formatErrors(data)
+            : `Registration failed (${response.status}): ${responseText.slice(
+                0,
+                100
+              ) || response.statusText}`,
+      });
+      return;
+    }
 
       if (!data) {
         throw new Error("The registration API returned an empty response.");

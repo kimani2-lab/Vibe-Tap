@@ -10,23 +10,29 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone as tz
 from django.utils.text import slugify
 
+from rest_framework import viewsets
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .models import AgentProfile, NFCCard, Profile
-from .serializers import AgentProfileSerializer, NFCCardSerializer, ResolveCredentialSerializer, RegisterAgentSerializer
+from .serializers import (
+    AgentProfileSerializer,
+    ProfileSerializer,
+    RegisterAgentSerializer,
+    ResolveCredentialSerializer,
+)
 
 
 @api_view(['GET'])
 def agent_resolver(request, identifier):
     """Resolve an authorized agent by NFC card token, slug, or agent ID."""
     try:
-        card = NFCCard.objects.select_related('agent_profile').get(
-            card_token=identifier,
-            agent_profile__isnull=False
-        )
+        card = NFCCard.objects.select_related('agent_profile').get(card_token=identifier)
     except (NFCCard.DoesNotExist, ValidationError, ValueError, TypeError):
         card = None
 
@@ -70,16 +76,27 @@ def agent_create(request):
 @api_view(['POST'])
 def register_agent_api(request):
     serializer = RegisterAgentSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    agent = serializer.save()
-    response_data = AgentProfileSerializer(agent).data
-    card = agent.nfc_cards.order_by('-created_at').first()
-    response_data['nfc_payload_url'] = (
-        f'https://vibe-tap-one.vercel.app/c/{card.card_token}'
-        if card is not None
-        else None
+    if serializer.is_valid():
+        try:
+            agent = serializer.save()
+            return Response(
+                {"message": "Agent registered successfully", "data": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            logger.error(f"Registration Error: {str(e)}", exc_info=True)
+            # Return real exception detail in development to identify the issue immediately
+            return Response(
+                {"detail": f"Registration failed: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    # Log validation errors (e.g., duplicate agent_id or missing fields)
+    logger.error(f"Validation Errors: {serializer.errors}")
+    return Response(
+        {"detail": "Validation error", "errors": serializer.errors},
+        status=status.HTTP_400_BAD_REQUEST
     )
-    return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
@@ -189,8 +206,8 @@ def tap_resolver(request, identifier):
             )
 
     # Fallback: try as profile slug
-    profile = get_object_or_404(Profile, slug=identifier)
-    serializer = AgentProfileSerializer(profile)
+    profile = get_object_or_404(Profile, slug__iexact=identifier)
+    serializer = ProfileSerializer(profile)
     return JsonResponse(serializer.data)
 
 
@@ -292,7 +309,7 @@ def card_reassign(request):
 
 
 def vcard(request, slug):
-    profile = get_object_or_404(Profile, slug=slug)
+    profile = get_object_or_404(Profile, slug__iexact=slug)
     social_links = profile.social_links or {}
 
     org_name = None
@@ -312,7 +329,7 @@ def vcard(request, slug):
 
     full_name = _escape_vcard(profile.full_name or '')
     organization = _escape_vcard(org_name or '')
-    title = _escape_vcard(profile.headline or '')
+    title = _escape_vcard(profile.title or '')
     phone = _escape_vcard(profile.phone or '')
     email = _escape_vcard(profile.email or '')
     website = _escape_vcard(website_url or '')
@@ -347,3 +364,15 @@ def vcard(request, slug):
     response = HttpResponse(vcard_content, content_type='text/vcard; charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename="{slug}.vcf"'
     return response
+
+
+class AgentProfileViewSet(viewsets.ModelViewSet):
+    queryset = AgentProfile.objects.all()
+    serializer_class = AgentProfileSerializer
+    lookup_field = 'slug'
+
+
+class ProfileViewSet(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    lookup_field = 'slug'

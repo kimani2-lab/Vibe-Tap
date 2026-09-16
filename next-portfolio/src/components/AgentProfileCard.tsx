@@ -14,11 +14,9 @@ export interface AgentData {
   avatar_url: string | null;
   is_verified: boolean;
   referral_code: string;
-  services_offered: {
-    category_name: string;
-    slug: string;
-    description: string;
-  }[];
+  services_offered?:
+    | string[]
+    | { name?: string; category_name?: string; slug?: string; description?: string }[];
   app_download_url: string;
 }
 
@@ -96,6 +94,14 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
   const [showProducts, setShowProducts] = useState(false);
   const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(agent.full_name)}&background=0f766e&color=fff&bold=true&size=256`;
   const cleanPhone = agent.phone.replace(/[^\d+]/g, "").replace(/^\+/, "");
+  const services = Array.isArray(agent.services_offered)
+    ? agent.services_offered
+        .map((service) => {
+          if (typeof service === "string") return service;
+          return service.name || service.category_name || String(service);
+        })
+        .filter(Boolean)
+    : [];
 
   return (
     <div className="w-full max-w-sm overflow-hidden rounded-b-3xl border border-blue-950 bg-[#001b5e] shadow-2xl font-sans">
@@ -270,17 +276,19 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
         <div>
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-300 mb-3">
             <span>Services Offered</span>
-            <span className="text-cyan-400 font-normal lowercase">{agent.services_offered.length} available</span>
+            <span className="text-cyan-400 font-normal lowercase">{services.length} available</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {agent.services_offered.map((service, i) => (
-              <div key={i} className="rounded-xl border border-slate-800 bg-[#111111] px-3 py-2.5 text-xs text-white flex items-center gap-2">
+            {services.length > 0 ? services.map((service, i) => (
+              <div key={`${service}-${i}`} className="rounded-xl border border-slate-800 bg-[#111111] px-3 py-2.5 text-xs text-white flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">
                   <Icon name="check" />
                 </span>
-                <span className="truncate">{service.category_name}</span>
+                <span className="truncate">{service}</span>
               </div>
-            ))}
+            )) : (
+              <p className="col-span-2 text-xs text-slate-500">No active services registered.</p>
+            )}
           </div>
         </div>
 

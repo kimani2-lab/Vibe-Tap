@@ -1,125 +1,137 @@
 import uuid
-
+import secrets
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils.text import slugify
 
 
-def nfc_card_token_generator():
-    return str(uuid.uuid4())
+class AgentProfile(models.Model):
+    agent_id = models.CharField(max_length=50, unique=True, primary_key=True)
+    full_name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    referral_code = models.CharField(max_length=20, unique=True, blank=True)
+    avatar_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="Direct image URL for agent avatar",
+    )
+    phone = models.CharField(max_length=20)
+    email = models.EmailField(unique=True)
+    headline = models.CharField(
+        max_length=255,
+        default='SasaPay Authorized Agent',
+        blank=True,
+    )
+    services_offered = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'agent_profile'
+        verbose_name = 'Agent Profile'
+        verbose_name_plural = 'Agent Profiles'
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+
+        # 1. Auto-generate slug if not present
+        if not self.slug:
+            self.slug = slugify(self.full_name)
+
+        # 2. Auto-generate referral_code if not present (e.g., REF-A1B2C3)
+        if not self.referral_code:
+            self.referral_code = f"REF-{secrets.token_hex(3).upper()}"
+
+        super().save(*args, **kwargs)
+
+        # 3. Automatically create an attached NFCCard on creation if none exists
+        if is_new and not self.nfc_cards.exists():
+            NFCCard.objects.create(
+                agent_profile=self,
+                card_token=f"card_{uuid.uuid4().hex}"
+            )
+
+    def __str__(self):
+        return f"{self.full_name} ({self.agent_id})"
 
 
 class NFCCard(models.Model):
-    STATUS_CHOICES = [
-        ('ACTIVE', 'Active'),
-        ('LOCKED', 'Locked'),
-        ('UNLINKED', 'Unlinked'),
-    ]
-
-    card_token = models.UUIDField(default=nfc_card_token_generator, unique=True, editable=False)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='ACTIVE')
-    profile = models.ForeignKey('Profile', on_delete=models.SET_NULL, null=True, blank=True, related_name='nfc_cards')
+    card_token = models.CharField(max_length=64, unique=True, db_index=True)
     agent_profile = models.ForeignKey(
-        'AgentProfile',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        AgentProfile,
+        on_delete=models.CASCADE,
         related_name='nfc_cards',
+        blank=True,
+        null=True,
     )
-    assigned_at = models.DateTimeField(auto_now_add=True)
-    last_tapped_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-assigned_at']
-
-    def __str__(self):
-        return f"Card {self.card_token} - {self.status}"
-
-
-class Profile(models.Model):
-    slug = models.SlugField(unique=True, max_length=100, db_index=True)
-    full_name = models.CharField(max_length=200)
-    headline = models.CharField(max_length=200, blank=True)
-    bio = models.TextField(blank=True)
-    email = models.EmailField(max_length=254, blank=True)
-    phone = models.CharField(max_length=50, blank=True)
-    avatar_url = models.URLField(blank=True)
-    social_links = models.JSONField(default=dict, blank=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-
-    def __str__(self):
-        return self.full_name
-
-
-class Project(models.Model):
-    profile = models.ForeignKey(Profile, related_name='projects', on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    project_url = models.URLField(blank=True)
-    cover_image = models.URLField(blank=True)
-
-    def __str__(self):
-        return self.title
-
-
-class AgentProfile(models.Model):
-    agent_id = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(max_length=100, unique=True)
-    full_name = models.CharField(max_length=150)
-    headline = models.CharField(
-        max_length=200,
-        default='SasaPay Authorized Agent',
-    )
-    phone = models.CharField(max_length=20)
-    email = models.EmailField(max_length=254)
-    avatar_url = models.URLField(blank=True, null=True)
-    is_verified = models.BooleanField(default=True)
-    referral_code = models.CharField(max_length=50, unique=True, blank=True)
-    card_token = models.CharField(max_length=64, unique=True, blank=True)
-    services_offered = models.JSONField(default=list, blank=True)
+        db_table = 'nfc_card'
+        verbose_name = 'NFC Card'
+        verbose_name_plural = 'NFC Cards'
 
     def save(self, *args, **kwargs):
-        if not self.referral_code:
-            self.referral_code = (
-                self.agent_id.upper().replace(' ', '-')
-                or slugify(self.full_name).upper()
-            )
         if not self.card_token:
-            self.card_token = uuid.uuid4().hex
+            self.card_token = f"card_{uuid.uuid4().hex}"
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.agent_id} - {self.full_name}'
+        return f"Token: {self.card_token} - Agent: {self.agent_profile_id}"
 
 
-class AgentNFCCard(models.Model):
-    STATUS_ACTIVE = 'ACTIVE'
-    STATUS_LOCKED = 'LOCKED'
-    STATUS_UNLINKED = 'UNLINKED'
-    STATUS_CHOICES = [
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_LOCKED, 'Locked'),
-        (STATUS_UNLINKED, 'Unlinked'),
-    ]
-
-    card_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    agent = models.ForeignKey(
-        AgentProfile,
-        on_delete=models.SET_NULL,
-        null=True,
+class Profile(models.Model):
+    full_name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
+    title = models.CharField(max_length=255, help_text="e.g., Software Engineer / Full Stack Developer")
+    bio = models.TextField(blank=True, null=True)
+    avatar_url = models.URLField(
+        max_length=500,
         blank=True,
-        related_name='agent_nfc_cards',
+        null=True,
+        help_text="Direct image URL for profile avatar",
     )
-    status = models.CharField(
-        max_length=8,
-        choices=STATUS_CHOICES,
-        default=STATUS_ACTIVE,
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    social_links = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Provide key-value pairs in JSON format, e.g., {"github": "https://...", "linkedin": "https://..."}',
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    last_tapped_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ['-created_at']
+        db_table = 'profile'
+        verbose_name = 'Profile'
+        verbose_name_plural = 'Profiles'
 
     def __str__(self):
-        return f'Agent card {self.card_token} - {self.status}'
+        return f"{self.full_name} ({self.slug})"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.full_name)
+        super().save(*args, **kwargs)
+
+
+class Project(models.Model):
+    profile = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name='projects'
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    technologies = models.CharField(max_length=255, help_text="Comma-separated skills (e.g. Django, Next.js, PostgreSQL)")
+    project_url = models.URLField(blank=True, null=True)
+    github_repository = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'project'
+        verbose_name = 'Project'
+        verbose_name_plural = 'Projects'
+
+    def __str__(self):
+        return self.title

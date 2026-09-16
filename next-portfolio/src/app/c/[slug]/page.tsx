@@ -51,7 +51,7 @@ async function fetchPortfolio(identifier: string): Promise<PortfolioData | undef
   return {
     slug: data.slug,
     full_name: data.full_name,
-    headline: data.headline,
+    headline: data.headline || data.title || "",
     email: data.email,
     phone: data.phone,
     location: data.location || "",

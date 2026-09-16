@@ -273,8 +273,8 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
             <span className="text-cyan-400 font-normal lowercase">{agent.services_offered.length} available</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {agent.services_offered.map((service) => (
-              <div key={service.slug} className="rounded-xl border border-slate-800 bg-[#111111] px-3 py-2.5 text-xs text-white flex items-center gap-2">
+            {agent.services_offered.map((service, i) => (
+              <div key={i} className="rounded-xl border border-slate-800 bg-[#111111] px-3 py-2.5 text-xs text-white flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">
                   <Icon name="check" />
                 </span>

@@ -8,45 +8,43 @@ from django.http import Http404
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone as tz
+from django.utils.text import slugify
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import AgentNFCCard, AgentProfile, NFCCard, Profile
-from .serializers import (
-    AgentProfileSerializer,
-    NFCCardSerializer,
-    ProfileSerializer,
-    ResolveCredentialSerializer,
-    RegisterAgentSerializer,
-)
+from .models import AgentProfile, NFCCard, Profile
+from .serializers import AgentProfileSerializer, NFCCardSerializer, ResolveCredentialSerializer, RegisterAgentSerializer
 
 
 @api_view(['GET'])
 def agent_resolver(request, identifier):
     """Resolve an authorized agent by NFC card token, slug, or agent ID."""
     try:
-        card = AgentNFCCard.objects.select_related('agent').get(card_token=identifier)
-    except (AgentNFCCard.DoesNotExist, ValidationError, ValueError, TypeError):
+        card = NFCCard.objects.select_related('agent_profile').get(
+            card_token=identifier,
+            agent_profile__isnull=False
+        )
+    except (NFCCard.DoesNotExist, ValidationError, ValueError, TypeError):
         card = None
 
     if card is not None:
-        if card.status == AgentNFCCard.STATUS_LOCKED:
+        if not card.is_active:
             return Response(
                 {'error': 'This card has been reported lost or deactivated.'},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        if card.status == AgentNFCCard.STATUS_UNLINKED or card.agent is None:
+        if card.agent_profile is None:
             return Response(
                 {'error': 'This card is not linked to an agent.'},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if card.status == AgentNFCCard.STATUS_ACTIVE:
-            return Response(AgentProfileSerializer(card.agent).data)
+        if card.is_active:
+            return Response(AgentProfileSerializer(card.agent_profile).data)
 
     agent = AgentProfile.objects.filter(
         models.Q(slug__iexact=identifier) | models.Q(agent_id__iexact=identifier)
@@ -75,7 +73,7 @@ def register_agent_api(request):
     serializer.is_valid(raise_exception=True)
     agent = serializer.save()
     response_data = AgentProfileSerializer(agent).data
-    card = agent.nfc_cards.order_by('-assigned_at').first()
+    card = agent.nfc_cards.order_by('-created_at').first()
     response_data['nfc_payload_url'] = (
         f'https://vibe-tap-one.vercel.app/c/{card.card_token}'
         if card is not None
@@ -91,7 +89,7 @@ def resolve_card_token(request, card_token):
     try:
         credential = NFCCard.objects.select_related('agent_profile').get(
             card_token=card_token,
-            status=NFCCard.STATUS_CHOICES[0][0],
+            is_active=True,
             agent_profile__isnull=False,
         )
     except (NFCCard.DoesNotExist, ValidationError, ValueError, TypeError):
@@ -109,12 +107,14 @@ def portfolio_detail(request, slug):
     profile = get_object_or_404(Profile, slug__iexact=slug)
     data = {
         'id': profile.id,
-        'slug': profile.slug,
+        'slug': slugify(profile.full_name),
         'full_name': profile.full_name,
-        'headline': profile.headline,
+        'title': profile.title,
+        'headline': profile.title,
         'bio': profile.bio,
         'email': profile.email,
         'phone': profile.phone,
+        'location': profile.location or '',
         'avatar_url': profile.avatar_url,
         'social_links': profile.social_links or {},
         'projects': [
@@ -123,7 +123,8 @@ def portfolio_detail(request, slug):
                 'title': p.title,
                 'description': p.description,
                 'project_url': p.project_url,
-                'cover_image': p.cover_image,
+                'tech': [technology.strip() for technology in p.technologies.split(',') if technology.strip()],
+                'cover_image': None,
             }
             for p in profile.projects.all()
         ],
@@ -167,20 +168,20 @@ def tap_resolver(request, identifier):
         pass
 
     if card:
-        if card.status == 'LOCKED':
+        if not card.is_active:
             return JsonResponse(
                 {'error': 'This card has been reported lost or deactivated.'},
                 status=403
             )
-        elif card.status == 'UNLINKED':
+        elif card.agent_profile is None:
             return JsonResponse(
                 {'error': 'Unassigned card.'},
                 status=404
             )
-        elif card.status == 'ACTIVE':
-            profile = card.profile
+        elif card.is_active:
+            profile = card.agent_profile
             if profile:
-                serializer = ProfileSerializer(profile)
+                serializer = AgentProfileSerializer(profile)
                 return JsonResponse(serializer.data)
             return JsonResponse(
                 {'error': 'Card has no associated profile.'},
@@ -189,7 +190,7 @@ def tap_resolver(request, identifier):
 
     # Fallback: try as profile slug
     profile = get_object_or_404(Profile, slug=identifier)
-    serializer = ProfileSerializer(profile)
+    serializer = AgentProfileSerializer(profile)
     return JsonResponse(serializer.data)
 
 
@@ -205,9 +206,8 @@ def card_lock(request):
 
     if card_token:
         card = get_object_or_404(NFCCard, card_token=card_token)
-        card.status = 'LOCKED'
-        card.last_tapped_at = tz.now()
-        card.save()
+        card.is_active = False
+        card.save(update_fields=['is_active'])
         return Response(
             {'message': 'Card locked successfully.', 'card_token': str(card.card_token)},
             status=status.HTTP_200_OK
@@ -215,20 +215,18 @@ def card_lock(request):
 
     if profile_id:
         profile = get_object_or_404(Profile, id=profile_id)
-        card = NFCCard.objects.filter(profile=profile).first()
+        card = NFCCard.objects.filter(agent_profile=profile).first()
         if card:
-            card.status = 'LOCKED'
-            card.last_tapped_at = tz.now()
-            card.save()
+            card.is_active = False
+            card.save(update_fields=['is_active'])
             return Response(
                 {'message': 'Card locked successfully.', 'card_token': str(card.card_token)},
                 status=status.HTTP_200_OK
             )
         # If no card exists for this profile, create one and lock it
         new_card = NFCCard.objects.create(
-            profile=profile,
-            status='LOCKED',
-            last_tapped_at=tz.now()
+            agent_profile=profile,
+            is_active=False,
         )
         return Response(
             {'message': 'Card created and locked.', 'card_token': str(new_card.card_token)},
@@ -263,7 +261,7 @@ def card_reassign(request):
     else:
         # If only card_token provided, get profile from that card
         card = get_object_or_404(NFCCard, card_token=card_token)
-        profile = card.profile
+        profile = card.agent_profile
         if not profile:
             return Response(
                 {'error': 'Card is not linked to a profile.'},
@@ -271,14 +269,14 @@ def card_reassign(request):
             )
 
     # Unlink any existing card from this profile (set to UNLINKED)
-    NFCCard.objects.filter(profile=profile).update(status='UNLINKED', profile=None)
+    NFCCard.objects.filter(agent_profile=profile).update(is_active=False, agent_profile=None)
 
     # Assign new card token to the profile
     new_card_token = str(uuid.uuid4())
     NFCCard.objects.create(
-        profile=profile,
+        agent_profile=profile,
         card_token=new_card_token,
-        status='ACTIVE'
+        is_active=True
     )
 
     # If there was a previous card with the same token, we essentially replaced it

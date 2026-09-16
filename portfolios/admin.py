@@ -2,67 +2,51 @@ from django.contrib import admin
 from .models import AgentProfile, NFCCard, Profile, Project
 
 
-class NfcCardInline(admin.TabularInline):
+class NFCCardInline(admin.TabularInline):
     model = NFCCard
-    extra = 1
-    fields = ['card_token', 'status', 'profile', 'last_tapped_at']
-    readonly_fields = ['card_token', 'last_tapped_at']
+    extra = 0
+    readonly_fields = ('card_token', 'created_at')
 
 
 @admin.register(AgentProfile)
 class AgentProfileAdmin(admin.ModelAdmin):
-    list_display = ['agent_id', 'full_name', 'phone', 'referral_code', 'is_verified']
-    search_fields = ['agent_id', 'full_name', 'phone', 'referral_code']
-    list_filter = ['is_verified']
+    list_display = ('agent_id', 'full_name', 'referral_code', 'email', 'phone', 'created_at')
+    search_fields = ('agent_id', 'full_name', 'referral_code', 'email', 'phone')
+    readonly_fields = ('referral_code',)
     prepopulated_fields = {'slug': ('full_name',)}
-    inlines = [NfcCardInline]
+    inlines = [NFCCardInline]
+    ordering = ('-created_at',)
 
 
 @admin.register(NFCCard)
 class NFCCardAdmin(admin.ModelAdmin):
-    list_display = ['card_token', 'status', 'profile', 'agent_profile', 'assigned_at', 'last_tapped_at']
-    list_filter = ['status', 'profile', 'agent_profile']
-    search_fields = ['card_token', 'profile__slug', 'agent_profile__agent_id', 'agent_profile__full_name']
-    actions = ['report_card_lost', 'unlink_card_from_profile']
+    list_display = ['card_token', 'agent_profile', 'is_active', 'created_at']
+    list_filter = ['is_active']
+    search_fields = ['card_token', 'agent_profile__agent_id']
+    actions = ['lock_cards', 'unlink_cards']
 
-    def report_card_lost(self, request, queryset):
-        queryset.update(status='LOCKED')
-    report_card_lost.short_description = 'Report Card as Lost / Lock Card'
+    @admin.action(description='Lock selected cards')
+    def lock_cards(self, request, queryset):
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f'{updated} card(s) locked.')
 
-    def unlink_card_from_profile(self, request, queryset):
-        queryset.update(status='UNLINKED', profile=None, agent_profile=None)
-    unlink_card_from_profile.short_description = 'Unlink Card from Profile'
+    @admin.action(description='Unlink and lock selected cards')
+    def unlink_cards(self, request, queryset):
+        updated = queryset.update(agent_profile=None, is_active=False)
+        self.message_user(request, f'{updated} card(s) unlinked and locked.')
 
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['full_name', 'slug', 'headline', 'email', 'phone']
-    list_filter = ['headline', 'nfc_cards']
-    search_fields = ['full_name', 'slug', 'headline', 'bio']
+    list_display = ('full_name', 'slug', 'title', 'email', 'avatar_url', 'created_at')
+    search_fields = ('full_name', 'slug', 'email', 'title')
     prepopulated_fields = {'slug': ('full_name',)}
-    fields = [
-        'slug',
-        'full_name',
-        'headline',
-        'bio',
-        'email',
-        'phone',
-        'avatar_url',
-        'social_links',
-    ]
-    filter_horizontal = []
+    ordering = ('-created_at',)
 
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['title', 'profile', 'project_url']
-    list_filter = ['profile']
-    search_fields = ['title', 'description']
-    fields = [
-        'profile',
-        'title',
-        'description',
-        'project_url',
-        'cover_image',
-    ]
-    filter_horizontal = []
+    list_display = ('title', 'profile', 'technologies', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('title', 'technologies', 'profile__full_name')
+    ordering = ('-created_at',)

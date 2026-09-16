@@ -30,7 +30,7 @@ const initialForm: FormState = {
 };
 
 const serviceOptions = ["Cash In", "Cash Out", "Bill Payments", "Merchant Tills"];
-const registrationUrl = `${process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000"}/api/v1/agent/register/`;
+const registrationUrl = "/api/agent/register";
 
 function formatErrors(errors: ApiErrors) {
   return Object.entries(errors)

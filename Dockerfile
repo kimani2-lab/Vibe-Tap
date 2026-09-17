@@ -28,6 +28,9 @@ COPY . .
 # Expose port 8000 (Django default)
 EXPOSE 8000
 
-# Entrypoint: run migrations, collect static, then start gunicorn
-# Gunicorn binds to 0.0.0.0:8000
-ENTRYPOINT ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
+# Copy and set permissions for the entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# Run entrypoint script: migrations, seed data, slug backfill, then start Gunicorn
+CMD ["/docker-entrypoint.sh", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]

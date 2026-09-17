@@ -368,4 +368,4 @@ class AgentProfileViewSet(viewsets.ModelViewSet):
 class ProfileViewSet(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    lookup_field = 'slug'
+    lookup_field = 'slug'# Force redeploy trigger - Thu Sep 17 11:16:22 AM EAT 2026

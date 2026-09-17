@@ -133,35 +133,39 @@ export default function SupervisorRegisterForm() {
         body: JSON.stringify(payload),
       });
       const responseText = await response.text();
-      let data: (ApiErrors & RegistrationResponse) | null = null;
+      let data: (ApiErrors & RegistrationResponse & { data?: RegistrationResponse | ApiErrors }) | null = null;
 
       try {
-        data = responseText ? (JSON.parse(responseText) as ApiErrors & RegistrationResponse) : null;
+        data = responseText ? (JSON.parse(responseText) as ApiErrors & RegistrationResponse & { data?: RegistrationResponse | ApiErrors }) : null;
       } catch {
         console.error("Registration API returned a non-JSON response:", responseText);
       }
 
-if (!response.ok) {
-      console.error("DRF Validation Payload:", JSON.stringify(data, null, 2));
-      
-      setFeedback({
-        type: "error",
-        message: formatErrors(data),
-      });
-      return;
-    }
+      if (!response.ok) {
+        console.error("DRF Validation Payload:", JSON.stringify(data, null, 2));
 
-      if (!data) {
+        setFeedback({
+          type: "error",
+          message: formatErrors(data),
+        });
+        return;
+      }
+
+      const responsePayload = data && typeof data === "object" && "data" in data && data.data && typeof data.data === "object"
+        ? (data.data as RegistrationResponse)
+        : (data as RegistrationResponse);
+
+      if (!responsePayload || !responsePayload.agent_id) {
         throw new Error("The registration API returned an empty response.");
       }
 
-      console.log("Agent registered successfully:", data);
+      console.log("Agent registered successfully:", responsePayload);
       setForm(initialForm);
       setFeedback({
         type: "success",
-        message: data.nfc_payload_url
-          ? `Agent ${data.agent_id} registered. NFC link ready: ${data.nfc_payload_url}`
-          : `Agent ${data.agent_id} registered successfully.`,
+        message: responsePayload.nfc_payload_url
+          ? `Agent ${responsePayload.agent_id} registered. NFC link ready: ${responsePayload.nfc_payload_url}`
+          : `Agent ${responsePayload.agent_id} registered successfully.`,
       });
     } catch {
       setFeedback({

@@ -64,6 +64,8 @@ class AgentProfileSerializer(serializers.ModelSerializer):
 
 
 class RegisterAgentSerializer(serializers.ModelSerializer):
+    agent_id = serializers.CharField(trim_whitespace=True, required=True)
+
     class Meta:
         model = AgentProfile
         fields = [
@@ -74,9 +76,11 @@ class RegisterAgentSerializer(serializers.ModelSerializer):
             'headline',
             'services_offered',
         ]
-        read_only_fields = ['agent_id']
 
     def validate_agent_id(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError('This field may not be blank.')
         if AgentProfile.objects.filter(agent_id=value).exists():
             raise serializers.ValidationError('An agent with this ID already exists.')
         return value

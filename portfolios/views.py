@@ -79,19 +79,19 @@ def register_agent_api(request):
     if serializer.is_valid():
         try:
             agent = serializer.save()
-            return Response(
-                {"message": "Agent registered successfully", "data": serializer.data},
-                status=status.HTTP_201_CREATED
-            )
+            payload = AgentProfileSerializer(agent).data
+            card = NFCCard.objects.filter(agent_profile=agent).order_by('-created_at').first()
+            if card is not None:
+                payload['card_token'] = card.card_token
+                payload['nfc_payload_url'] = f"https://vibe-tap-one.vercel.app/c/{card.card_token}"
+            return Response(payload, status=status.HTTP_201_CREATED)
         except Exception as e:
             logger.error(f"Registration Error: {str(e)}", exc_info=True)
-            # Return real exception detail in development to identify the issue immediately
             return Response(
                 {"detail": f"Registration failed: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-    
-    # Log validation errors (e.g., duplicate agent_id or missing fields)
+
     logger.error(f"Validation Errors: {serializer.errors}")
     return Response(
         {"detail": "Validation error", "errors": serializer.errors},

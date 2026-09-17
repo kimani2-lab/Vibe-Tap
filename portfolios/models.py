@@ -46,11 +46,11 @@ class AgentProfile(models.Model):
         verbose_name_plural = 'Agent Profiles'
 
     def save(self, *args, **kwargs):
-        is_new = self._state.adding
-
-        # 1. Auto-generate slug if not present
-        if not self.slug:
+        # 1. Auto-generate/normalize slug
+        if not self.slug and self.full_name:
             self.slug = slugify(self.full_name)
+        elif self.slug:
+            self.slug = slugify(self.slug)  # Force clean slug format (e.g. Allyn_underscore -> allyn-underscore)
 
         # 2. Auto-generate referral_code if not present (e.g., REF-A1B2C3)
         if not self.referral_code:
@@ -59,6 +59,7 @@ class AgentProfile(models.Model):
         super().save(*args, **kwargs)
 
         # 3. Automatically create an attached NFCCard on creation if none exists
+        is_new = self._state.adding
         if is_new and not self.nfc_cards.exists():
             NFCCard.objects.create(
                 agent_profile=self,

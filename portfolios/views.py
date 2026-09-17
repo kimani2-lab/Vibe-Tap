@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime, timezone
 
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.db import models
 from django.http import Http404
 from django.http import JsonResponse, HttpResponse
@@ -30,38 +31,30 @@ from .serializers import (
 
 @api_view(['GET'])
 def agent_resolver(request, identifier):
-    """Resolve an authorized agent by NFC card token, slug, or agent ID."""
-    try:
-        card = NFCCard.objects.select_related('agent_profile').get(card_token=identifier)
-    except (NFCCard.DoesNotExist, ValidationError, ValueError, TypeError):
-        card = None
+    """
+    Resolves an AgentProfile by slug, agent_id, or NFC card token.
+    Supports case-insensitive matching and auto-slugified inputs.
+    """
+    clean_identifier = identifier.strip()
+    # Normalize: replace underscores with hyphens, lowercase, then slugify
+    normalized_slug = slugify(clean_identifier.replace("_", "-"))
 
-    if card is not None:
-        if not card.is_active:
-            return Response(
-                {'error': 'This card has been reported lost or deactivated.'},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        if card.agent_profile is None:
-            return Response(
-                {'error': 'This card is not linked to an agent.'},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        if card.is_active:
-            return Response(AgentProfileSerializer(card.agent_profile).data)
-
+    # Match against slug (both raw & normalized), agent_id, or NFC card token
     agent = AgentProfile.objects.filter(
-        models.Q(slug__iexact=identifier) | models.Q(agent_id__iexact=identifier)
+        Q(slug__iexact=clean_identifier) |
+        Q(slug__iexact=normalized_slug) |
+        Q(agent_id__iexact=clean_identifier) |
+        Q(nfc_cards__card_token__iexact=clean_identifier)
     ).first()
-    if agent is None:
+
+    if not agent:
         return Response(
-            {'error': 'Agent profile not found.'},
-            status=status.HTTP_404_NOT_FOUND,
+            {"error": f"Agent profile '{identifier}' not found."},
+            status=status.HTTP_404_NOT_FOUND
         )
 
-    return Response(AgentProfileSerializer(agent).data)
+    serializer = AgentProfileSerializer(agent)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

@@ -87,7 +87,8 @@ function LockedCardNotice({ message }: { message: string }) {
 
 export default async function AgentResolverPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const localProfile = findProfile(slug);
+  const cleanSlug = slug.trim().toLowerCase().replace(/_/g, "-");
+  const localProfile = findProfile(cleanSlug);
 
   if (localProfile?.type === "portfolio") {
     const portfolio: PortfolioData = {
@@ -148,7 +149,7 @@ export default async function AgentResolverPage({ params }: { params: Promise<{ 
     );
   }
 
-  const resolver = await fetchResolver(slug);
+  const resolver = await fetchResolver(cleanSlug);
 
   if (resolver.error?.status === 403) {
     return <LockedCardNotice message={resolver.error.message} />;
@@ -166,7 +167,7 @@ export default async function AgentResolverPage({ params }: { params: Promise<{ 
     return <LegacyPortfolioCard profile={resolver.data as LegacyProfile} apiBase={apiBase()} />;
   }
 
-  const portfolio = await fetchPortfolio(slug);
+  const portfolio = await fetchPortfolio(cleanSlug);
   if (portfolio) return <PortfolioProfileCard profile={portfolio} />;
 
   notFound();

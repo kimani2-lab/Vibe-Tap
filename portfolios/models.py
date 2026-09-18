@@ -19,6 +19,12 @@ class AgentProfile(models.Model):
     agent_id = models.CharField(max_length=50, unique=True, primary_key=True)
     full_name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
+    sasapay_checkout_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="SasaPay checkout app link assigned to this agent."
+    )
     referral_code = models.CharField(max_length=20, unique=True, blank=True)
     avatar_url = models.URLField(
         max_length=500,

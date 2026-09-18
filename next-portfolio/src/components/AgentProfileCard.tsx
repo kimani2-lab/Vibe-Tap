@@ -18,6 +18,7 @@ export interface AgentData {
     | string[]
     | { name?: string; category_name?: string; slug?: string; description?: string }[];
   app_download_url: string;
+  payment_url?: string;
 }
 
 /**
@@ -210,6 +211,18 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
             <Icon name="whatsapp" /> WhatsApp
           </a>
         </div>
+
+        {/* Pay Agent Button */}
+        {agent.payment_url && (
+          <a
+            href={agent.payment_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border border-slate-700 bg-[#111111] text-xs font-semibold text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:border-cyan-500/60 hover:bg-[#181818] transition"
+          >
+            <Icon name="arrow" /> Pay Agent
+          </a>
+        )}
 
         {/* Collapsible Ecosystem Products */}
         <div className="mt-5">

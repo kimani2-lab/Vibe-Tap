@@ -48,19 +48,12 @@ class NFCCardSerializer(serializers.ModelSerializer):
 
 
 class AgentProfileSerializer(serializers.ModelSerializer):
-    nfc_cards = NFCCardSerializer(many=True, read_only=True)
-    app_download_url = serializers.SerializerMethodField()
-
     class Meta:
         model = AgentProfile
         fields = [
-            'agent_id', 'full_name', 'slug', 'referral_code',
-            'avatar_url', 'phone', 'email', 'headline',
-            'services_offered', 'nfc_cards', 'created_at', 'app_download_url'
+            'agent_id', 'full_name', 'slug', 'phone', 'email',
+            'headline', 'sasapay_checkout_url'
         ]
-
-    def get_app_download_url(self, obj):
-        return f"https://play.google.com/store/apps/details?id=ke.co.sasapay.sasapay_app&pcampaignid=web_share{obj.agent_id}"
 
 
 class RegisterAgentSerializer(serializers.ModelSerializer):

@@ -30,6 +30,7 @@ export interface ProfileData {
     description: string;
   }[];
   app_download_url?: string;
+  payment_url?: string;
 }
 
 export interface SasaPayProduct {
@@ -191,6 +192,7 @@ export const profiles: ProfileData[] = [
     referral_code: "phryshawn111",
     services_offered: [{"category_name": "Person to person transfers", "slug": "p2p-transfers", "description": "Instant wallet-to-wallet funds transfers between individual SasaPay users."}, {"category_name": "SasaPay enterprise", "slug": "sasapay-enterprise", "description": "Customized digital payment architectures and bulk disbursement solutions for large corporations."}, {"category_name": "Merchant and B2B business", "slug": "merchant-b2b", "description": "Payment collection tools, API integrations, and business-to-business settlement services."}, {"category_name": "PSV fare service", "slug": "psv-fare-service", "description": "SasaMat contactless fare collection solution for public service vehicle operators and commuters."}, {"category_name": "Retail business", "slug": "retail-business", "description": "Till numbers and paybill solutions tailored for point-of-sale retail merchants."}, {"category_name": "Agency business", "slug": "agency-business", "description": "Agent network platform enabling deposit, withdrawal, and customer onboarding services."}],
     app_download_url: "https://play.google.com/store/apps/details?id=ke.co.sasapay.sasapay_app",
+    payment_url: "",
     bio: "",
     skills: { backend: [], frontend: [], databases: [], tools: [] },
   },

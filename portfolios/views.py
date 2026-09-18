@@ -16,6 +16,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+from django.views.decorators.cache import never_cache
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ from .serializers import (
 
 
 @api_view(['GET'])
+@never_cache
 def agent_resolver(request, identifier):
     """
     Resolves an AgentProfile by slug, agent_id, or NFC card token.
@@ -48,13 +50,21 @@ def agent_resolver(request, identifier):
     ).first()
 
     if not agent:
-        return Response(
+        response = Response(
             {"error": f"Agent profile '{identifier}' not found."},
             status=status.HTTP_404_NOT_FOUND
         )
+        response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response["Pragma"] = "no-cache"
+        response["Expires"] = "0"
+        return response
 
     serializer = AgentProfileSerializer(agent)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    response = Response(serializer.data, status=status.HTTP_200_OK)
+    response["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 
 @api_view(['POST'])

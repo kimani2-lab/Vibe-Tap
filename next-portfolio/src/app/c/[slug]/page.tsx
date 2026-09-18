@@ -4,6 +4,9 @@ import LegacyPortfolioCard, { LegacyProfile } from "@/components/LegacyPortfolio
 import PortfolioProfileCard, { PortfolioData } from "@/components/PortfolioProfileCard";
 import { findProfile } from "@/lib/data";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface ResolverError {
   status: number;
   message: string;
@@ -21,7 +24,11 @@ const apiBase = () =>
 async function fetchResolver(identifier: string): Promise<{ data?: AgentResolverData; error?: ResolverError }> {
   const response = await fetch(`${apiBase()}/api/v1/agent/${encodeURIComponent(identifier)}/`, {
     cache: "no-store",
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+    },
   });
 
   if (response.ok) {
@@ -42,7 +49,11 @@ async function fetchResolver(identifier: string): Promise<{ data?: AgentResolver
 async function fetchPortfolio(identifier: string): Promise<PortfolioData | undefined> {
   const response = await fetch(`${apiBase()}/api/v1/portfolios/${encodeURIComponent(identifier)}/`, {
     cache: "no-store",
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      Pragma: "no-cache",
+    },
   });
 
   if (!response.ok) return undefined;

@@ -220,7 +220,7 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
             rel="noopener noreferrer"
             className="border border-slate-700 bg-[#111111] text-xs font-semibold text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:border-cyan-500/60 hover:bg-[#181818] transition"
           >
-            <Icon name="arrow" /> Pay agent
+            <Icon name="arrow" /> SasaPay_checkout_url
           </a>
         )}
 

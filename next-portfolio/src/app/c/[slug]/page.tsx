@@ -143,6 +143,7 @@ export default async function AgentResolverPage({ params }: { params: Promise<{ 
             referral_code: localProfile.referral_code || "",
             services_offered: localProfile.services_offered || [],
             app_download_url: localProfile.app_download_url || "#",
+            payment_url: localProfile.payment_url,
           }}
         />
       </main>

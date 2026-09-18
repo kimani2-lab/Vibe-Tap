@@ -4,6 +4,8 @@ import LegacyPortfolioCard, { LegacyProfile } from "@/components/LegacyPortfolio
 import PortfolioProfileCard, { PortfolioData } from "@/components/PortfolioProfileCard";
 import { findProfile } from "@/lib/data";
 
+// This route is intentionally dynamic and uncached so agent updates from the live Django/PostgreSQL backend
+// are reflected on every request without a Vercel rebuild or manual cache clear.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -99,6 +101,9 @@ function LockedCardNotice({ message }: { message: string }) {
 export default async function AgentResolverPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const cleanSlug = slug.trim().toLowerCase().replace(/_/g, "-");
+
+  // Local profiles are compile-time baked into lib/data.ts and therefore require a code change + redeploy
+  // to reflect changes. The API-resolved path below is the one that supports instant live updates.
   const localProfile = findProfile(cleanSlug);
 
   if (localProfile?.type === "portfolio") {

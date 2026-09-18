@@ -128,6 +128,9 @@ export const sasaPayProducts: SasaPayProduct[] = [
   }
 ];
 
+// Static local seed data for development/demo scenarios only.
+// These are build-time baked profiles and are intentionally not live database data.
+// A change here requires a commit + redeploy; it is not the path used for instant backend-driven updates.
 export const profiles: ProfileData[] = [
   {
     type: "portfolio",

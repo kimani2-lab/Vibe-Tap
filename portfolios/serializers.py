@@ -48,6 +48,12 @@ class NFCCardSerializer(serializers.ModelSerializer):
 
 
 class AgentProfileSerializer(serializers.ModelSerializer):
+    sasapay_checkout_url = serializers.URLField(
+        required=False,
+        allow_null=True,
+        allow_blank=True,
+    )
+
     class Meta:
         model = AgentProfile
         fields = [

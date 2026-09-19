@@ -104,6 +104,20 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
         .filter(Boolean)
     : [];
 
+  const rawCheckoutUrl = typeof agent.payment_url === "string" ? agent.payment_url.trim() : "";
+  const hasCheckoutUrl = rawCheckoutUrl.length > 0;
+  const agentIdentifier = agent.agent_id || agent.slug;
+  const activeCheckoutUrl = hasCheckoutUrl
+    ? rawCheckoutUrl
+    : `https://checkout.sasapay.app/pay/${encodeURIComponent(agentIdentifier)}`;
+
+  console.log("Agent API Payload for:", {
+    slug: agent.slug,
+    sasapay_checkout_url: rawCheckoutUrl || null,
+    agent_id: agent.agent_id,
+    resolved_payment_url: activeCheckoutUrl,
+  });
+
   return (
     <div className="w-full max-w-sm overflow-hidden rounded-b-3xl border border-blue-950 bg-[#001b5e] shadow-2xl font-sans">
       
@@ -213,16 +227,14 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
         </div>
 
         {/* Pay Agent Button */}
-        {agent.payment_url && (
-          <a
-            href={agent.payment_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="border border-slate-700 bg-[#111111] text-xs font-semibold text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:border-cyan-500/60 hover:bg-[#181818] transition"
-          >
-            <Icon name="arrow" /> SasaPay_checkout_url
-          </a>
-        )}
+        <a
+          href={activeCheckoutUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 border border-slate-700 bg-[#111111] text-xs font-semibold text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:border-cyan-500/60 hover:bg-[#181818] transition"
+        >
+          <Icon name="arrow" /> SasaPay_checkout_url
+        </a>
 
         {/* Collapsible Ecosystem Products */}
         <div className="mt-5">

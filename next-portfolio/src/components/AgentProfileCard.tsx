@@ -104,18 +104,28 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
         .filter(Boolean)
     : [];
 
-  const rawCheckoutUrl = typeof agent.payment_url === "string" ? agent.payment_url.trim() : "";
-  const hasCheckoutUrl = rawCheckoutUrl.length > 0;
+  const formatExternalUrl = (value: string | null | undefined): string | null => {
+    if (!value || typeof value !== "string") return null;
+
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+
+    if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+      return `https://${trimmed}`;
+    }
+
+    return trimmed;
+  };
+
+  const rawCheckoutUrl = formatExternalUrl(agent.payment_url);
   const agentIdentifier = agent.agent_id || agent.slug;
-  const activeCheckoutUrl = hasCheckoutUrl
-    ? rawCheckoutUrl
-    : `https://checkout.sasapay.app/pay/${encodeURIComponent(agentIdentifier)}`;
+  const activeCheckoutUrl = rawCheckoutUrl || `https://checkout.sasapay.app/pay/${encodeURIComponent(agentIdentifier)}`;
 
   console.log("Agent API Payload for:", {
     slug: agent.slug,
-    sasapay_checkout_url: rawCheckoutUrl || null,
+    sasapay_checkout_url: agent.payment_url ?? null,
+    normalized_href: activeCheckoutUrl,
     agent_id: agent.agent_id,
-    resolved_payment_url: activeCheckoutUrl,
   });
 
   return (

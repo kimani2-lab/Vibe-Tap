@@ -54,6 +54,20 @@ class AgentProfileSerializer(serializers.ModelSerializer):
         allow_blank=True,
     )
 
+    def validate_sasapay_checkout_url(self, value):
+        """Ensure stored URLs always include a valid absolute protocol."""
+        if value in (None, ''):
+            return value
+
+        normalized = str(value).strip()
+        if not normalized:
+            return ''
+
+        if not normalized.startswith(('http://', 'https://')):
+            return f'https://{normalized}'
+
+        return normalized
+
     class Meta:
         model = AgentProfile
         fields = [

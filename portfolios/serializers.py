@@ -48,25 +48,19 @@ class NFCCardSerializer(serializers.ModelSerializer):
 
 
 class AgentProfileSerializer(serializers.ModelSerializer):
-    sasapay_checkout_url = serializers.URLField(
-        required=False,
-        allow_null=True,
-        allow_blank=True,
-    )
+    sasapay_checkout_url = serializers.SerializerMethodField()
 
-    def validate_sasapay_checkout_url(self, value):
-        """Ensure stored URLs always include a valid absolute protocol."""
-        if value in (None, ''):
-            return value
+    def get_sasapay_checkout_url(self, obj):
+        """Return the DB value when available, otherwise build a safe fallback URL."""
+        db_url = getattr(obj, 'sasapay_checkout_url', None)
+        if db_url and str(db_url).strip():
+            clean_url = str(db_url).strip()
+            if not clean_url.startswith(('http://', 'https://')):
+                return f'https://{clean_url}'
+            return clean_url
 
-        normalized = str(value).strip()
-        if not normalized:
-            return ''
-
-        if not normalized.startswith(('http://', 'https://')):
-            return f'https://{normalized}'
-
-        return normalized
+        identifier = obj.agent_id or obj.slug or 'default'
+        return f'https://checkout.sasapay.app/pay/{identifier}'
 
     class Meta:
         model = AgentProfile

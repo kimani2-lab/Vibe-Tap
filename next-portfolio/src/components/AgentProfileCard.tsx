@@ -104,33 +104,18 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
         .filter(Boolean)
     : [];
 
-  const formatExternalUrl = (value: string | null | undefined): string | null => {
-    if (!value || typeof value !== "string") return null;
+  const checkoutUrl = typeof agent.payment_url === "string" && agent.payment_url.trim()
+    ? agent.payment_url.trim()
+    : `https://checkout.sasapay.app/pay/${encodeURIComponent(agent.agent_id || agent.slug)}`;
 
-    const trimmed = value.trim();
-    if (!trimmed) return null;
-
-    if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
-      return `https://${trimmed}`;
-    }
-
-    return trimmed;
-  };
-
-  const rawCheckoutUrl = typeof agent.payment_url === "string" ? agent.payment_url.trim() : "";
-  const normalizedCheckoutUrl = formatExternalUrl(rawCheckoutUrl);
-  const hasValidCheckoutUrl = Boolean(normalizedCheckoutUrl && /^https?:\/\//i.test(normalizedCheckoutUrl));
-
-  if (!hasValidCheckoutUrl) {
-    console.warn(`[VibeTap Warning]: Missing valid sasapay_checkout_url for agent ${agent.slug}`);
+  if (process.env.NODE_ENV !== "production") {
+    console.log("Agent API Payload for:", {
+      slug: agent.slug,
+      sasapay_checkout_url: agent.payment_url ?? null,
+      resolved_href: checkoutUrl,
+      agent_id: agent.agent_id,
+    });
   }
-
-  console.log("Agent API Payload for:", {
-    slug: agent.slug,
-    sasapay_checkout_url: agent.payment_url ?? null,
-    normalized_href: normalizedCheckoutUrl ?? null,
-    agent_id: agent.agent_id,
-  });
 
   return (
     <div className="w-full max-w-sm overflow-hidden rounded-b-3xl border border-blue-950 bg-[#001b5e] shadow-2xl font-sans">
@@ -241,24 +226,14 @@ export default function AgentProfileCard({ agent }: { agent: AgentData }) {
         </div>
 
         {/* Pay Agent Button */}
-        {hasValidCheckoutUrl ? (
-          <a
-            href={normalizedCheckoutUrl!}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-3 border border-slate-700 bg-[#111111] text-xs font-semibold text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:border-cyan-500/60 hover:bg-[#181818] transition"
-          >
-            <Icon name="arrow" /> Pay Agent via SasaPay
-          </a>
-        ) : (
-          <button
-            type="button"
-            disabled
-            className="mt-3 w-full cursor-not-allowed rounded-xl border border-slate-700 bg-gray-700/60 px-4 py-3 text-xs font-semibold text-gray-300 opacity-75"
-          >
-            Payment Endpoint Unavailable
-          </button>
-        )}
+        <a
+          href={checkoutUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 border border-slate-700 bg-[#111111] text-xs font-semibold text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:border-cyan-500/60 hover:bg-[#181818] transition"
+        >
+          <Icon name="arrow" /> Pay Agent via SasaPay
+        </a>
 
         {/* Collapsible Ecosystem Products */}
         <div className="mt-5">
